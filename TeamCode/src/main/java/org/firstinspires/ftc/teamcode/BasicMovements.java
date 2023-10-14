@@ -35,6 +35,7 @@ public class BasicMovements extends LinearOpMode {
     private DcMotor backLeftM;
     private DcMotor backRightM;
 
+    // Configurable percentage of speed. (0.5 = 50% of max forward speed)
     private final double MAX_REVERSE = -1.0;
     private final double MAX_FORWARD = 1.0;
 
@@ -42,7 +43,7 @@ public class BasicMovements extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         // Hardware Preparations
 
-        // Rough Chassis Sketch
+        // Rough Chassis Sketch, Utilizing Tank Controls
         // `frontLeft` 0| |   | |0 `frontRight`
         //              | |   | |
         //              | |= =| |
@@ -66,18 +67,42 @@ public class BasicMovements extends LinearOpMode {
         waitForStart();
         ElapsedTime totalRuntime = new ElapsedTime();
 
+        // GamePad Control Schema
+        //  (D_PAD)                    (Button X, Y, B, A)  ═ ▶  Presets for autonomous (Not Included Here)
+        //   ║   (Left-Stick)    (Right-Stick)
+        //   ║        ║               ╚ ▶ Forward, Backward, Rotate Left or Right;
+        //   ▼        ╚ ▶ For Omnidirectional Strafing;
+        //   None
+
         while(opModeIsActive()) {
-            double stickPitch = -gamepad1.left_stick_y;
-            double stickRoll = gamepad1.left_stick_x;
+            // Joystick value
+            //      1 (y-value)
+            //      ⭡
+            // -1 ⭠ 0 ⭢ 1 (x-value)
+            //      ⭣
+            //     -1
 
-            double leftPower  = clampPower(stickPitch + stickRoll);
-            double rightPower = clampPower(stickPitch - stickRoll);
+            // Allow to drive from left stick and right stick
+            double drive = -((gamepad1.left_stick_y != 0)
+                    ? gamepad1.left_stick_y
+                    : gamepad1.right_stick_y);
 
-            frontLeftM.setPower(leftPower);
-            frontRightM.setPower(rightPower);
-            backRightM.setPower(rightPower);
-            backLeftM.setPower(leftPower);
+            double strafe = gamepad1.left_stick_x;
+            double rotate = gamepad1.right_stick_x;
 
+            // Percentage Powers Capped at (MAX_REVERSE and MAX_FORWARD)
+            double frontLeftP  = clampPower(drive + strafe + rotate);
+            double frontRightP = clampPower(drive - strafe - rotate);
+            double backLeftP   = clampPower(drive - strafe + rotate);
+            double backRightP  = clampPower(drive + strafe - rotate);
+
+            frontLeftM.setPower(frontLeftP);
+            frontRightM.setPower(frontRightP);
+            backLeftM.setPower(backLeftP);
+            backRightM.setPower(backRightP);
+
+
+            // DEBUG DATA
             telemetry.addData("Status","Total Runtime %.3f s", totalRuntime.seconds());
 
             telemetry.addData("FL Motor Power", frontLeftM.getPower());
