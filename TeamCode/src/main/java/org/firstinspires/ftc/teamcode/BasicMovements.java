@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name= "Basic Movements", group= "Linear OpMode")
+@TeleOp(name = "Basic Movements", group = "TeleOp")
 
 /*
 * This will serve as proof of concept for our robot, only containing the basic movements.
@@ -28,13 +25,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 *
 * =================================IMPORTANT===================================
 * */
-public class BasicMovements extends LinearOpMode {
-    // All Motors
-    private DcMotor frontLeftM;
-    private DcMotor frontRightM;
-    private DcMotor backLeftM;
-    private DcMotor backRightM;
-
+public class BasicMovements extends BasicLinearOpMode {
     // Configurable percentage of speed. (0.5 = 50% of max forward speed)
     private final double MAX_REVERSE = -1.0;
     private final double MAX_FORWARD = 1.0;
@@ -42,26 +33,7 @@ public class BasicMovements extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         // Hardware Preparations
-
-        // Rough Chassis Sketch, Utilizing Tank Controls
-        // `frontLeft` 0| |   | |0 `frontRight`
-        //              | |   | |
-        //              | |= =| |
-        // `backLeft`  0| |   | |0 `backRight`
-
-        frontLeftM  = hardwareMap.get(DcMotor.class, "frontLeft");
-        frontRightM = hardwareMap.get(DcMotor.class, "frontRight");
-        backLeftM   = hardwareMap.get(DcMotor.class, "backLeft");
-        backRightM  = hardwareMap.get(DcMotor.class, "backRight");
-
-        frontLeftM.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRightM.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeftM.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightM.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        telemetry.addData("Status", "Hardware Prepared");
-        telemetry.addLine("Press the PLAY button to start.");
-        telemetry.update();
+        setupDcMotors();
 
         // Wait for the user to click the PLAY BUTTON
         waitForStart();
