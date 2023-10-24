@@ -76,13 +76,7 @@ public class BasicMovements extends BasicLinearOpMode {
 
             // DEBUG DATA
             telemetry.addData("Status","Total Runtime %.3f s", totalRuntime.seconds());
-
-            telemetry.addData("FL Motor Power", frontLeftM.getPower());
-            telemetry.addData("FR Motor Power", frontRightM.getPower());
-            telemetry.addData("BL Motor Power", backLeftM.getPower());
-            telemetry.addData("BR Motor Power", backRightM.getPower());
-
-            telemetry.update();
+            sendMotorsTelemetry();
         }
     }
 

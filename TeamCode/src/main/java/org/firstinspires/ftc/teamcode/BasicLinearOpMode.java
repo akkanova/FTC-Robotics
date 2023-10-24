@@ -18,7 +18,7 @@ public abstract class BasicLinearOpMode extends LinearOpMode {
     protected void setupDcMotors() {
         // Hardware Preparations
 
-        // Rough Chassis Sketch, Utilizing Tank Controls
+        // Rough Chassis Sketch, Utilizing 4WD
         // `frontLeft` 0| |   | |0 `frontRight`
         //              | |   | |
         //              | |= =| |
@@ -36,6 +36,16 @@ public abstract class BasicLinearOpMode extends LinearOpMode {
 
         telemetry.addData("Status", "Hardware Prepared");
         telemetry.addLine("Press the PLAY button to start.");
+        telemetry.update();
+    }
+
+    /** Append Motors' data to telemetry and send data. */
+    protected void sendMotorsTelemetry() {
+        telemetry.addData("FL Motor Power", frontLeftM.getPower());
+        telemetry.addData("FR Motor Power", frontRightM.getPower());
+        telemetry.addData("BL Motor Power", backLeftM.getPower());
+        telemetry.addData("BR Motor Power", backRightM.getPower());
+
         telemetry.update();
     }
 }
