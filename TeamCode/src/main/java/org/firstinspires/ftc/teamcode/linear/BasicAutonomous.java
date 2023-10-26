@@ -1,10 +1,18 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.linear;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name = "Basic Autonomous", group = "Autonomous")
 /**
+ * =================================IMPORTANT===================================
+ *
+ * This has been archived, as encoders are preferred over timing based movements
+ * for accuracy and redundancy.
+ *
+ * =================================IMPORTANT===================================
+ *
+ *
  * This will serve as a proof of concept for our really basic
  * autonomous mode code, whilst also serving as a base to develop a library
  * to convert specific movements to motor rotation.
