@@ -36,7 +36,7 @@ public class MainMovements extends Root {
     // -0.75 => 75% of Max Speed in the opposite direction)
     public final double MAX_REVERSE_SPEED = -1.00;
     public final double MAX_FORWARD_SPEED = 1.00;
-    public final boolean SEND_DEBUG_TELEMETRY = true;
+
 
     /** Runs once, before the operator presses PLAY */
     @Override
@@ -75,13 +75,15 @@ public class MainMovements extends Root {
         double backLeftP   = limitPower(drive - strafe + rotate);
         double backRightP  = limitPower(drive + strafe - rotate);
 
-        frontLeftM.setPower(frontLeftP);
-        frontRightM.setPower(frontRightP);
-        backLeftM.setPower(backLeftP);
-        backRightM.setPower(backRightP);
+        frontLeftWheel.setPower(frontLeftP);
+        frontRightWheel.setPower(frontRightP);
+        backLeftWheel.setPower(backLeftP);
+        backRightWheel.setPower(backRightP);
 
         // Replace with something else in official competitions
-        sendMotorDebugTelemetry();
+        appendMotorDebugTelemetry();
+        appendServoDebugTelemetry();
+        telemetry.update();
     }
 
     public double limitPower(double input) {
