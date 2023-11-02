@@ -36,13 +36,19 @@ public class MainMovements extends Root {
     // -0.75 => 75% of Max Speed in the opposite direction)
     public final double MAX_REVERSE_SPEED = -1.00;
     public final double MAX_FORWARD_SPEED = 1.00;
+    public final double ARM_SERVO_DELTA = 0.01;
+    public final double GP_TRIGGER_THRESHOLD = 0.5;
+
+    // temporary(?) variable for testing continuous servo use
+    public double topServoPower = 0;
+    public double bottomServoPower = -1;
 
 
     /** Runs once, before the operator presses PLAY */
     @Override
     public void init() {
-        setupDcMotors();
-        setupArmServos();
+        setupWheelMotors();
+        setupArmHardware();
         sendInitialTelemetry();
     }
 
@@ -79,6 +85,27 @@ public class MainMovements extends Root {
         frontRightWheel.setPower(frontRightP);
         backLeftWheel.setPower(backLeftP);
         backRightWheel.setPower(backRightP);
+
+        if (gamepad1.left_bumper) {
+            topServoPower += ARM_SERVO_DELTA;
+        } else if (gamepad1.left_trigger > GP_TRIGGER_THRESHOLD) {
+            topServoPower -= ARM_SERVO_DELTA;
+        }
+
+        if (gamepad1.right_bumper) {
+            bottomServoPower += ARM_SERVO_DELTA;
+        } else if (gamepad1.right_trigger > GP_TRIGGER_THRESHOLD) {
+            bottomServoPower -= ARM_SERVO_DELTA;
+        }
+
+        topServoPower    = limitPower(topServoPower);
+        bottomServoPower = limitPower(bottomServoPower);
+
+        // Danny's note: `setPower` acts more like `setPosition` of a traditional servo at the moment
+        topLeftArmServo.setPower(topServoPower);
+        topRightArmServo.setPower(topServoPower);
+        bottomLeftArmServo.setPower(bottomServoPower);
+        bottomRightArmServo.setPower(bottomServoPower);
 
         // Replace with something else in official competitions
         appendMotorDebugTelemetry();

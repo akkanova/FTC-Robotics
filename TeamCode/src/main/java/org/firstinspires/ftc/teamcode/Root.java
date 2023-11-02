@@ -1,15 +1,19 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.IMU;
 
 /**
  * With the power of class inheritance we don't have to write the
  * code used in both "MainMovements" and "MainAutonomous" twice.
  * */
 public abstract class Root extends OpMode {
+    // "Intelligent 9-axis absolute orientation sensor"
+    protected IMU imu;
+
     // Wheel Motors
     protected DcMotor frontLeftWheel;
     protected DcMotor frontRightWheel;
@@ -17,36 +21,27 @@ public abstract class Root extends OpMode {
     protected DcMotor backRightWheel;
 
     // Arm Servos
-    protected Servo bottomLeftArmServo;
-    protected Servo bottomRightArmServo;
-    protected Servo topLeftArmServo;
-    protected Servo topRightArmServo;
+    protected CRServo bottomLeftArmServo;
+    protected CRServo bottomRightArmServo;
+    protected CRServo topLeftArmServo;
+    protected CRServo topRightArmServo;
 
     /////////////////////////////////////////////////////////////////////////////////////
     // Hardware Preparations Code
     /////////////////////////////////////////////////////////////////////////////////////
 
-    /** Setup the 4 wheel motors and reset encoders used for precision driving */
-    protected void setupPreciseDcMotors() {
-        setupDcMotors();
+    /** Reset the motor encoder so that it reads zero ticks at the current position */
+    protected void resetWheelEncoders() {
+        doToAllWheels((wheel) -> wheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER));
 
-        // Reset the motor encoder so that it reads zero ticks at
-        // the current position
-        frontLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        // Turn the motor back on, basically required if you
-        // use STOP_AND_RESET_ENCODER
-        frontLeftWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontRightWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeftWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRightWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // Option here
+        // RUN_USING_ENCODER - use encoders to determine the velocity
+        // RUN_WITHOUT_ENCODERS - it'll determine it's own velocity
+        doToAllWheels((wheel) -> wheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER));
     }
 
     /** Setup all 4 Motors driving each Mecanum wheels */
-    protected void setupDcMotors() {
+    protected void setupWheelMotors() {
         // Hardware Preparations
 
         // Rough Chassis Sketch, Utilizing 4WD
@@ -64,21 +59,47 @@ public abstract class Root extends OpMode {
         frontRightWheel.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        doToAllWheels((wheel) -> wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
     }
 
-    protected void setupArmServos() {
-        // Todo: Try running the servos as a Continuous Rotation Servo
+    protected void setupArmHardware() {
+        bottomLeftArmServo = hardwareMap.crservo.get("BottomLeftS");
+        bottomRightArmServo = hardwareMap.crservo.get("BottomRightS");
+        topLeftArmServo = hardwareMap.crservo.get("TopLeftS");
+        topRightArmServo = hardwareMap.crservo.get("TopRightS");
 
-        bottomLeftArmServo = hardwareMap.servo.get("BottomLeftS");
-        bottomRightArmServo = hardwareMap.servo.get("BottomRightS");
-        topLeftArmServo = hardwareMap.servo.get("TopLeftS");
-        topRightArmServo = hardwareMap.servo.get("TopRightS");
-
-        bottomLeftArmServo.setDirection(Servo.Direction.FORWARD);
-        bottomRightArmServo.setDirection(Servo.Direction.REVERSE);
-        topLeftArmServo.setDirection(Servo.Direction.FORWARD);
-        topRightArmServo.setDirection(Servo.Direction.REVERSE);
+        bottomLeftArmServo.setDirection(CRServo.Direction.FORWARD);
+        bottomRightArmServo.setDirection(CRServo.Direction.REVERSE);
+        topLeftArmServo.setDirection(CRServo.Direction.FORWARD);
+        topRightArmServo.setDirection(CRServo.Direction.REVERSE);
     }
+
+    // Required for autonomous turning
+    protected void setup9AxisSensor() {
+//        imu = hardwareMap.get(IMU.class, "imu");
+//        imu.initialize(new IMU.Parameters());
+    }
+
+    /**
+     * Got tired of writing the same code for each of the wheels
+     * Instead of doing this:
+     *   frontLeftWheel.doSomething()
+     *   frontRightWheel.doSomething();
+     *   backLeftWheel.doSomething();
+     *   backRightWheel.doSomething();
+     *
+     * you could instead do this instead:
+     *  doToAllWheels((wheel) -> wheel.doSomething());
+     * */
+    protected void doToAllWheels(WheelCallback callback) {
+        callback.run(frontLeftWheel);
+        callback.run(frontRightWheel);
+        callback.run(backLeftWheel);
+        callback.run(backRightWheel);
+    }
+
+    interface WheelCallback { void run(DcMotor wheel); }
 
     /////////////////////////////////////////////////////////////////////////////////////
     // Telemetry Helper Code
@@ -90,18 +111,22 @@ public abstract class Root extends OpMode {
         telemetry.update();
     }
 
+    protected void appendTotalRuntime() {
+        telemetry.addData("Status","Total Runtime %.3f s", getRuntime());
+    }
+
     /** For development purposes only */
     protected void appendMotorDebugTelemetry() {
-        telemetry.addData("FL Motor Power", frontLeftWheel.getPower());
-        telemetry.addData("FR Motor Power", frontRightWheel.getPower());
-        telemetry.addData("BL Motor Power", backLeftWheel.getPower());
-        telemetry.addData("BR Motor Power", backRightWheel.getPower());
+        telemetry.addData("FL Motor Position", frontLeftWheel.getCurrentPosition());
+        telemetry.addData("FR Motor Position", frontRightWheel.getCurrentPosition());
+        telemetry.addData("BL Motor Position", backLeftWheel.getCurrentPosition());
+        telemetry.addData("BR Motor Position", backRightWheel.getCurrentPosition());
     }
 
     protected void appendServoDebugTelemetry() {
-        telemetry.addData("TL Position", topLeftArmServo.getPosition());
-        telemetry.addData("TR Position", topRightArmServo.getPosition());
-        telemetry.addData("BL Position", bottomLeftArmServo.getPosition());
-        telemetry.addData("BR Position", bottomRightArmServo.getPosition());
+        telemetry.addData("TL CRServo Power", topLeftArmServo.getPower());
+        telemetry.addData("TR CRServo Power", topRightArmServo.getPower());
+        telemetry.addData("BL CRServo Power", bottomLeftArmServo.getPower());
+        telemetry.addData("BR CRServo Power", bottomRightArmServo.getPower());
     }
 }

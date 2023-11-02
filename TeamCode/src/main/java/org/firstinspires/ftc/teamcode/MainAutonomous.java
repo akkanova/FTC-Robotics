@@ -6,17 +6,21 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name = "Main Autonomous", group = "Autonomous")
 public class MainAutonomous extends Root {
-    private final double MECANUM_WHEEL_CIRCUMFERENCE = Math.PI * 0.098; // (m) https://www.pitsco.com/TETRIX-MAX-Mecanum-Wheels
-    private final int TETRIX_MOTOR_CPR = 1440; // https://asset.pitsco.com/sharedimages/resources/torquenado_dcmotorspecs.pdf
+    private final double MOVEMENT_POWER = 0.5;
+    private final double WHEEL_CIRCUMFERENCE = Math.PI * 0.098; // M
+    private final int COUNTS_PER_MOTOR_REVOLUTION = 1440;
+    private final double COUNTS_PER_METER =
+            COUNTS_PER_MOTOR_REVOLUTION / WHEEL_CIRCUMFERENCE;
 
-    private ElapsedTime totalRuntime;
+    private boolean isRunning = false;
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        setupPreciseDcMotors();
+        setupWheelMotors();
+        resetWheelEncoders();
         sendInitialTelemetry();
     }
 
@@ -25,15 +29,15 @@ public class MainAutonomous extends Root {
      */
     @Override
     public void start() {
-        totalRuntime = new ElapsedTime();
-
+        isRunning = true;
         // Autonomous code here..
         // Since it's executed sequentially, write it here.
 
-        revolve(frontLeftWheel,  1);
-        revolve(frontRightWheel, 1);
-        revolve(backLeftWheel,   1);
-        revolve(backRightWheel,  1);
+        move(1, 1, 5);
+    }
+
+    public void stop() {
+        isRunning = false;
     }
 
     /*
@@ -41,20 +45,44 @@ public class MainAutonomous extends Root {
      */
     @Override
     public void loop() {
-        telemetry.addData("Status","Total Runtime %.3f s", totalRuntime.seconds());
+        appendTotalRuntime();
         appendMotorDebugTelemetry();
         telemetry.update();
     }
 
-    // Run the specified motor until it moved this amount of distance
-    private void revolve(DcMotor motor, double metersDistance) {
-        double currentRevolutions = motor.getCurrentPosition() / TETRIX_MOTOR_CPR;
-        double circumference = Math.PI * MECANUM_WHEEL_CIRCUMFERENCE;
+    private void move(
+        double leftMeter,
+        double rightMeter,
+        double maxSeconds
+    ) {
+        if (!isRunning)
+            return;
 
-        double requiredRevolutions = metersDistance / circumference;
-        double totalRevolutions = currentRevolutions + requiredRevolutions;
+        resetWheelEncoders();
 
-        motor.setPower(0.5);
-        motor.setTargetPosition((int) totalRevolutions);
+        // Make sure it doesn't do it for more than n amount of seconds
+        ElapsedTime timeout = new ElapsedTime();
+
+        // Since strafing does not work due to weight distribution issues,
+        // using only tank controls would be perfectly fine.
+        int leftTarget = (int) (leftMeter * COUNTS_PER_METER);
+        int rightTarget = (int) (rightMeter * COUNTS_PER_METER);
+
+        frontLeftWheel.setTargetPosition(leftTarget);
+        frontRightWheel.setTargetPosition(rightTarget);
+        backLeftWheel.setTargetPosition(leftTarget);
+        backRightWheel.setTargetPosition(rightTarget);
+
+        doToAllWheels((wheel) -> wheel.setMode(DcMotor.RunMode.RUN_TO_POSITION));
+        doToAllWheels((wheel) -> wheel.setPower(MOVEMENT_POWER));
+
+        while (isRunning && timeout.seconds() < maxSeconds &&
+            (frontLeftWheel.isBusy() || frontRightWheel.isBusy() ||
+             backLeftWheel.isBusy()  || backRightWheel.isBusy())) {
+            // Idle loop
+        }
+
+        doToAllWheels((motor) -> motor.setPower(0));
+        doToAllWheels((motor) -> motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER));
     }
 }
