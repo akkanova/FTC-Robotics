@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 /**
  * With the power of class inheritance we don't have to write the
@@ -25,20 +29,12 @@ public abstract class Root extends OpMode {
     protected CRServo bottomRightArmServo;
     protected CRServo topLeftArmServo;
     protected CRServo topRightArmServo;
+    protected CRServo clawServo;
+    protected CRServo planeServo;
 
     /////////////////////////////////////////////////////////////////////////////////////
     // Hardware Preparations Code
     /////////////////////////////////////////////////////////////////////////////////////
-
-    /** Reset the motor encoder so that it reads zero ticks at the current position */
-    protected void resetWheelEncoders() {
-        doToAllWheels((wheel) -> wheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER));
-
-        // Option here
-        // RUN_USING_ENCODER - use encoders to determine the velocity
-        // RUN_WITHOUT_ENCODERS - it'll determine it's own velocity
-        doToAllWheels((wheel) -> wheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER));
-    }
 
     /** Setup all 4 Motors driving each Mecanum wheels */
     protected void setupWheelMotors() {
@@ -68,17 +64,29 @@ public abstract class Root extends OpMode {
         bottomRightArmServo = hardwareMap.crservo.get("BottomRightS");
         topLeftArmServo = hardwareMap.crservo.get("TopLeftS");
         topRightArmServo = hardwareMap.crservo.get("TopRightS");
+        clawServo = hardwareMap.crservo.get("ClawS");
+        planeServo = hardwareMap.crservo.get("PlaneS");
 
         bottomLeftArmServo.setDirection(CRServo.Direction.FORWARD);
         bottomRightArmServo.setDirection(CRServo.Direction.REVERSE);
         topLeftArmServo.setDirection(CRServo.Direction.FORWARD);
         topRightArmServo.setDirection(CRServo.Direction.REVERSE);
+        clawServo.setDirection(CRServo.Direction.FORWARD);
+        planeServo.setDirection(CRServo.Direction.FORWARD);
     }
 
     // Required for autonomous turning
     protected void setup9AxisSensor() {
-//        imu = hardwareMap.get(IMU.class, "imu");
-//        imu.initialize(new IMU.Parameters());
+        imu = hardwareMap.get(IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(
+            new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP
+            )
+        );
+
+        imu.initialize(parameters);
+        imu.resetYaw();
     }
 
     /**
@@ -128,5 +136,12 @@ public abstract class Root extends OpMode {
         telemetry.addData("TR CRServo Power", topRightArmServo.getPower());
         telemetry.addData("BL CRServo Power", bottomLeftArmServo.getPower());
         telemetry.addData("BR CRServo Power", bottomRightArmServo.getPower());
+    }
+
+    protected void appendOrientationSensor() {
+        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        telemetry.addData("Yaw °",   angles.getYaw(AngleUnit.DEGREES));
+        telemetry.addData("Pitch °", angles.getPitch(AngleUnit.DEGREES));
+        telemetry.addData("Roll °",  angles.getRoll(AngleUnit.DEGREES));
     }
 }
