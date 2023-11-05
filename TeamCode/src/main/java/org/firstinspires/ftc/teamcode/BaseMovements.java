@@ -6,8 +6,8 @@ public abstract class BaseMovements extends Root {
     // Movement Config
     // (0.50 => 50% of Max Speed,
     // -0.75 => 75% of Max Speed in the opposite direction)
-    protected final double MAX_REVERSE_SPEED = -1;
-    protected final double MAX_FORWARD_SPEED = 1;
+    protected final double MAX_REVERSE_SPEED = -0.7;
+    protected final double MAX_FORWARD_SPEED = 0.7 ;
     protected final double SERVO_DELTA = 0.7;
 
     // temporary(?) variable for testing continuous servo use
