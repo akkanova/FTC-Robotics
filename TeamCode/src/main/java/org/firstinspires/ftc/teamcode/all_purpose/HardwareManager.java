@@ -89,10 +89,6 @@ public class HardwareManager {
         return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
     }
 
-    public void setupWebcam() {
-        // ..
-    }
-
     public HardwareManager(HardwareMap hardwareMap) {
         // Wheels
         frontLeftWheel = hardwareMap.dcMotor.get("FrontLeftM");
