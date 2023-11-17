@@ -84,8 +84,29 @@ public abstract class SelfDriving extends LinearOpMode {
     //------------------------------------------------------------------------------------------------
     // Arm Controls
     //------------------------------------------------------------------------------------------------
-    // Provided, the arm's accuracy is improved. Write those movement methods here..
+    protected void setWristAngleBasedOnRange(double Range) {
+        //The Arm, if possible by default, would be arranged in a rectangular shape
+        /*
+              [+] ---------- [+]
+              |               |
+              |               |
+              |      <-range- N -range->
+          =======
 
+          [+]: joints
+          N: claw
+
+          -wrist joint is at a 0 degree position
+          -range is the distance or point that the claw points at
+          -an angle value is returned and added to the wrist joints 0 angle
+
+
+
+        */
+        /*
+        newAngle = Math.atan(Range / heightOfArmpitGearToGround)
+        */
+    }
 
     //------------------------------------------------------------------------------------------------
     // Inheritance

@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.all_purpose.ComputerVision;
 import org.firstinspires.ftc.teamcode.all_purpose.HardwareManager;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.teamcode.base.SelfDriving;
+import java.util.List;
 
 @Autonomous(name = "OpenCV Test", group = "Test")
 public class OpenCV extends SelfDriving {
@@ -16,23 +17,30 @@ public class OpenCV extends SelfDriving {
         hardwareManager = new HardwareManager(hardwareMap);
         computerVision = new ComputerVision(hardwareMap);
 
+        telemetry.addLine("Open the 3 Dots on the Top-Right.");
+        telemetry.addLine("Then Select 'Camera Stream'");
+        telemetry.update();
+
+        // Live Preview Only works before the loop
+        computerVision.initialize(
+                ComputerVision.DetectionMode.APRIL_TAG |
+                ComputerVision.DetectionMode.PIXEL,
+                true);
+
         waitForStart();
         runAutonomous();
     }
 
     @Override
     protected void runAutonomous() {
-        computerVision.initialize();
-
-        telemetry.addLine("Open the 3 Dots on the Top-Right.");
-        telemetry.addLine("Then Select 'Camera Stream'");
-        telemetry.update();
-
         while (opModeIsActive()) {
+            List<AprilTagDetection> currentDetections = computerVision.aprilTagProcessor.getDetections();
+            telemetry.addData("# AprilTags Detected", currentDetections.size());
+
             // Intentional Idle Loop
-            for (AprilTagDetection detection : computerVision.aprilTagProcessor.getDetections()) {
-                // Update Telemetry ...
-            }
+//            for (AprilTagDetection detection : currentDetections) {
+//                // Update Telemetry ...
+//            }
 
             telemetry.update();
             idle();
