@@ -22,10 +22,7 @@ public class OpenCV extends SelfDriving {
         telemetry.update();
 
         // Live Preview Only works before the loop
-        computerVision.initialize(
-                ComputerVision.DetectionMode.APRIL_TAG |
-                ComputerVision.DetectionMode.PIXEL,
-                true);
+        computerVision.initialize(ComputerVision.Processors.TEST,true);
 
         waitForStart();
         runAutonomous();

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.base;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.all_purpose.HardwareManager;
 
 /**
@@ -12,6 +14,9 @@ public abstract class SelfDriving extends LinearOpMode {
     protected final int COUNTS_PER_MOTOR_REVOLUTION = 900;
     protected final double COUNTS_PER_METER =
             COUNTS_PER_MOTOR_REVOLUTION / WHEEL_CIRCUMFERENCE;
+
+    protected final double HEIGHT_OF_WRIST_JOINT_TO_GROUND = 0; //IN
+    protected final double SECONDS_PER_ANGLE = 0; //SEC
 
     protected HardwareManager hardwareManager;
 
@@ -85,6 +90,9 @@ public abstract class SelfDriving extends LinearOpMode {
     // Arm Controls
     //------------------------------------------------------------------------------------------------
     protected void setWristAngleBasedOnRange(double Range) {
+        if (!opModeIsActive())
+            return;
+
         //The Arm, if possible by default, would be arranged in a rectangular shape
         /*
               [+] ---------- [+]
@@ -99,13 +107,16 @@ public abstract class SelfDriving extends LinearOpMode {
           -wrist joint is at a 0 degree position
           -range is the distance or point that the claw points at
           -an angle value is returned and added to the wrist joints 0 angle
-
-
-
         */
-        /*
-        newAngle = Math.atan(Range / heightOfArmpitGearToGround)
-        */
+    }
+
+    protected void keepTurningTillSeconds(double seconds) {
+        ElapsedTime elapsedTime = new ElapsedTime();
+        while (opModeIsActive() && elapsedTime.seconds() < seconds) {
+            hardwareManager.bottomLeftArmServo.setPosition(
+                hardwareManager.bottomLeftArmServo.getPosition() + 1
+            );
+        }
     }
 
     //------------------------------------------------------------------------------------------------

@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.all_purpose;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 /**
@@ -64,12 +65,7 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     // Arm
     //------------------------------------------------------------------------------------------------
-    public CRServo bottomLeftArmServo;
-    public CRServo bottomRightArmServo;
-    public CRServo topLeftArmServo;
-    public CRServo topRightArmServo;
-    public CRServo clawServo;
-    public CRServo droneReleaseServo;
+    public Servo bottomLeftArmServo;
 
     //------------------------------------------------------------------------------------------------
     // Sensors
@@ -104,19 +100,7 @@ public class HardwareManager {
         doToAllWheels((wheel) -> wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
 
         // Arm
-        bottomLeftArmServo = hardwareMap.crservo.get("BottomLeftS");
-        bottomRightArmServo = hardwareMap.crservo.get("BottomRightS");
-        topLeftArmServo = hardwareMap.crservo.get("TopLeftS");
-        topRightArmServo = hardwareMap.crservo.get("TopRightS");
-        clawServo = hardwareMap.crservo.get("ClawS");
-        droneReleaseServo = hardwareMap.crservo.get("PlaneS");
-
-        bottomLeftArmServo.setDirection(CRServo.Direction.FORWARD);
-        bottomRightArmServo.setDirection(CRServo.Direction.REVERSE);
-        topLeftArmServo.setDirection(CRServo.Direction.FORWARD);
-        topRightArmServo.setDirection(CRServo.Direction.REVERSE);
-        clawServo.setDirection(CRServo.Direction.FORWARD);
-        droneReleaseServo.setDirection(CRServo.Direction.FORWARD);
+        bottomLeftArmServo = hardwareMap.servo.get("BottomLeftS");
 
         // Sensors
         imu = hardwareMap.get(IMU.class, "imu");

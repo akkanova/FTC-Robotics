@@ -122,13 +122,13 @@ public abstract class HumanOperated extends OpMode {
         hardwareManager.backLeftWheel.setPower(limitMotorPower(backLeftWheelP));
         hardwareManager.backRightWheel.setPower(limitMotorPower(backRightWheelP));
 
-        hardwareManager.topLeftArmServo.setPower(limitServoPower(topArmServoP));
-        hardwareManager.topRightArmServo.setPower(limitServoPower(topArmServoP));
-        hardwareManager.bottomLeftArmServo.setPower(limitServoPower(bottomArmServoP));
-        hardwareManager.bottomRightArmServo.setPower(limitServoPower(bottomArmServoP));
-
-        hardwareManager.droneReleaseServo.setPower(droneReleaseServoP);
-        hardwareManager.clawServo.setPower(clawServoP);
+//        hardwareManager.topLeftArmServo.setPower(limitServoPower(topArmServoP));
+//        hardwareManager.topRightArmServo.setPower(limitServoPower(topArmServoP));
+//        hardwareManager.bottomLeftArmServo.setPower(limitServoPower(bottomArmServoP));
+//        hardwareManager.bottomRightArmServo.setPower(limitServoPower(bottomArmServoP));
+//
+//        hardwareManager.droneReleaseServo.setPower(droneReleaseServoP);
+//        hardwareManager.clawServo.setPower(clawServoP);
     }
 
     protected double limitMotorPower(double input) {
