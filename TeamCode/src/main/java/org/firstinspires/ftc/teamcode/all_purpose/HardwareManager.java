@@ -65,7 +65,10 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     // Arm
     //------------------------------------------------------------------------------------------------
-    public Servo bottomLeftArmServo;
+    public final Servo TopLeftArmServo;
+    public final Servo TopRightArmServo;
+    public final DcMotor BottomLeftArmMotor;
+    public final DcMotor BottomRightArmMotor;
 
     //------------------------------------------------------------------------------------------------
     // Sensors
@@ -100,7 +103,13 @@ public class HardwareManager {
         doToAllWheels((wheel) -> wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
 
         // Arm
-        bottomLeftArmServo = hardwareMap.servo.get("BottomLeftS");
+        TopLeftArmServo = hardwareMap.servo.get("TopLeftS");
+        TopRightArmServo = hardwareMap.servo.get("TopRightS");
+        BottomLeftArmMotor = hardwareMap.dcMotor.get("BottomLeftM");
+        BottomRightArmMotor = hardwareMap.dcMotor.get("BottomRightM");
+
+        TopLeftArmServo.setDirection(Servo.Direction.FORWARD);
+        TopLeftArmServo.setDirection(Servo.Direction.REVERSE);
 
         // Sensors
         imu = hardwareMap.get(IMU.class, "imu");
