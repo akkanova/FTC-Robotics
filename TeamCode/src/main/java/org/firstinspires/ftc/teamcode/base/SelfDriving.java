@@ -15,8 +15,10 @@ public abstract class SelfDriving extends LinearOpMode {
     protected final double COUNTS_PER_METER =
             COUNTS_PER_MOTOR_REVOLUTION / WHEEL_CIRCUMFERENCE;
 
-    protected final double HEIGHT_OF_WRIST_JOINT_TO_GROUND = 0; //IN
-    protected final double SECONDS_PER_ANGLE = 0; //SEC
+    protected final double WRIST_GEAR_RATIO = 0;
+    protected final double POSITIONS_PER_SERVO_ROTATION = 0;
+    protected final double POSITIONS_PER_SERVO_ANGLE = POSITIONS_PER_SERVO_ROTATION / 360;
+    protected final double HEIGHT_OF_ARMPIT_JOINT_FROM_GROUND = 1; // IN
 
     protected HardwareManager hardwareManager;
 
@@ -89,11 +91,7 @@ public abstract class SelfDriving extends LinearOpMode {
     //------------------------------------------------------------------------------------------------
     // Arm Controls
     //------------------------------------------------------------------------------------------------
-    protected void setWristAngleBasedOnRange(double Range) {
-        if (!opModeIsActive())
-            return;
-
-        //The Arm, if possible by default, would be arranged in a rectangular shape
+    //The Arm, if possible by default, would be arranged in a rectangular shape
         /*
               [+] ---------- [+]
               |               |
@@ -108,16 +106,57 @@ public abstract class SelfDriving extends LinearOpMode {
           -range is the distance or point that the claw points at
           -an angle value is returned and added to the wrist joints 0 angle
         */
-    }
 
-    protected void keepTurningTillSeconds(double seconds) {
+
+    protected void moveWristServos(double endPosition, double timeInMillisecondsForFinish){
+        if (!opModeIsActive())
+            return;
+
+        double TopLeftArmServoP = hardwareManager.topLeftArmServo.getPosition();
+        double TopRightArmServoP = hardwareManager.topRightArmServo.getPosition();
+
+        double TopRightArmServoDestinationSlope = (TopRightArmServoP + endPosition * WRIST_GEAR_RATIO)
+                                                    /timeInMillisecondsForFinish;
+        double TopLeftArmServoDestinationSlope = (TopLeftArmServoP - endPosition * WRIST_GEAR_RATIO)
+                                                    /timeInMillisecondsForFinish;
+
         ElapsedTime elapsedTime = new ElapsedTime();
-        while (opModeIsActive() && elapsedTime.seconds() < seconds) {
-            hardwareManager.bottomLeftArmServo.setPosition(
-                hardwareManager.bottomLeftArmServo.getPosition() + 1
+        while(opModeIsActive() && elapsedTime.milliseconds() < timeInMillisecondsForFinish)
+        {
+            hardwareManager.topLeftArmServo.setPosition(
+                    TopLeftArmServoDestinationSlope * elapsedTime.milliseconds() + TopLeftArmServoP
             );
+
+            hardwareManager.topRightArmServo.setPosition(
+                    TopRightArmServoDestinationSlope * elapsedTime.milliseconds() + TopRightArmServoP
+            );
+
+            /*Don't get all mixed up with my garble, mathematically this is simply akin to
+              drawing a straight line between two points on a graph. In this case the two points being the
+              current servo position and the desired position by the function.
+             */
         }
     }
+
+    protected void moveArmpitServos(int endPosition){
+        if (!opModeIsActive())
+            return;
+
+        // A: look at the code for {@code move()}.. DcMotor.setTargetPosition is somewhat unreliable
+        hardwareManager.bottomLeftArmMotor.setTargetPosition(endPosition);
+        hardwareManager.bottomRightArmMotor.setTargetPosition(endPosition);
+    }
+
+    protected void changeWristPosByRange(double range){
+        if (!opModeIsActive())
+            return;
+
+        double angleAtRange = Math.atan(range/ HEIGHT_OF_ARMPIT_JOINT_FROM_GROUND);
+        double angleToPosition = angleAtRange * POSITIONS_PER_SERVO_ANGLE;
+        moveWristServos(angleToPosition, 5000);
+    }
+
+
 
     //------------------------------------------------------------------------------------------------
     // Inheritance
