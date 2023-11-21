@@ -65,10 +65,21 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     // Arm
     //------------------------------------------------------------------------------------------------
-    public final Servo TopLeftArmServo;
-    public final Servo TopRightArmServo;
-    public final DcMotor BottomLeftArmMotor;
-    public final DcMotor BottomRightArmMotor;
+    public final Servo topLeftArmServo;
+    public final Servo topRightArmServo;
+    public final DcMotor bottomLeftArmMotor;
+    public final DcMotor bottomRightArmMotor;
+
+    /** Similar to {@code doToAllWheels()} but only for the bottom arm DcMotors. */
+    public void doToAllArmMotors(WheelCallback callback) {
+        callback.run(bottomLeftArmMotor);
+        callback.run(bottomRightArmMotor);
+    }
+
+    public void resetBottomMotorCounts() {
+        doToAllArmMotors((wheel) -> wheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER));
+        doToAllArmMotors((wheel) -> wheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER));
+    }
 
     //------------------------------------------------------------------------------------------------
     // Sensors
@@ -103,13 +114,17 @@ public class HardwareManager {
         doToAllWheels((wheel) -> wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
 
         // Arm
-        TopLeftArmServo = hardwareMap.servo.get("TopLeftS");
-        TopRightArmServo = hardwareMap.servo.get("TopRightS");
-        BottomLeftArmMotor = hardwareMap.dcMotor.get("BottomLeftM");
-        BottomRightArmMotor = hardwareMap.dcMotor.get("BottomRightM");
+        topLeftArmServo = hardwareMap.servo.get("TopLeftS");
+        topRightArmServo = hardwareMap.servo.get("TopRightS");
+        bottomLeftArmMotor = hardwareMap.dcMotor.get("BottomLeftM");
+        bottomRightArmMotor = hardwareMap.dcMotor.get("BottomRightM");
 
-        TopLeftArmServo.setDirection(Servo.Direction.FORWARD);
-        TopLeftArmServo.setDirection(Servo.Direction.REVERSE);
+        topLeftArmServo.setDirection(Servo.Direction.FORWARD);
+        topLeftArmServo.setDirection(Servo.Direction.REVERSE);
+        bottomLeftArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        bottomRightArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        doToAllArmMotors((motor) -> motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
 
         // Sensors
         imu = hardwareMap.get(IMU.class, "imu");

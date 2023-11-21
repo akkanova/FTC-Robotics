@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.base;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.all_purpose.HardwareManager;
@@ -112,6 +111,7 @@ public abstract class SelfDriving extends LinearOpMode {
     protected void moveWristServos(double endPosition, double timeInMillisecondsForFinish){
         if (!opModeIsActive())
             return;
+
         double convertedEndPosition = endPosition/500;
         double TopLeftArmServoP = hardwareManager.TopLeftArmServo.getPosition();
         double TopRightArmServoP = hardwareManager.TopRightArmServo.getPosition();
@@ -124,14 +124,16 @@ public abstract class SelfDriving extends LinearOpMode {
         ElapsedTime elapsedTime = new ElapsedTime();
         while(opModeIsActive() && elapsedTime.milliseconds() < timeInMillisecondsForFinish)
         {
+
             hardwareManager.TopLeftArmServo.getPosition();
             hardwareManager.TopRightArmServo.getPosition();
 
             hardwareManager.TopLeftArmServo.setPosition(
+
                     TopLeftArmServoDestinationSlope * elapsedTime.milliseconds() + TopLeftArmServoP
             );
 
-            hardwareManager.TopRightArmServo.setPosition(
+            hardwareManager.topRightArmServo.setPosition(
                     TopRightArmServoDestinationSlope * elapsedTime.milliseconds() + TopRightArmServoP
             );
 
@@ -145,6 +147,7 @@ public abstract class SelfDriving extends LinearOpMode {
              */
         }
     }
+
     protected void setZeroPositionsForServos(){
         hardwareManager.TopLeftArmServo.setPosition(0);
         hardwareManager.TopRightArmServo.setPosition(0);
@@ -154,10 +157,11 @@ public abstract class SelfDriving extends LinearOpMode {
         if (!opModeIsActive())
             return;
 
-        hardwareManager.BottomLeftArmMotor.setTargetPosition(endPosition);
-        hardwareManager.BottomRightArmMotor.setTargetPosition(endPosition);
-
+        // A: look at the code for {@code move()}.. DcMotor.setTargetPosition is somewhat unreliable
+        hardwareManager.bottomLeftArmMotor.setTargetPosition(endPosition);
+        hardwareManager.bottomRightArmMotor.setTargetPosition(endPosition);
     }
+
     protected void changeWristPosByRange(double range){
         if (!opModeIsActive())
             return;
