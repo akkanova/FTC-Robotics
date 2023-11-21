@@ -15,8 +15,8 @@ public abstract class SelfDriving extends LinearOpMode {
     protected final double COUNTS_PER_METER =
             COUNTS_PER_MOTOR_REVOLUTION / WHEEL_CIRCUMFERENCE;
 
-    protected final double WRIST_GEAR_RATIO = 0;
-    protected final double POSITIONS_PER_SERVO_ROTATION = 0;
+    protected final double WRIST_GEAR_RATIO = 1;
+    protected final double POSITIONS_PER_SERVO_ROTATION = 1;
     protected final double POSITIONS_PER_SERVO_ANGLE = POSITIONS_PER_SERVO_ROTATION / 360;
     protected final double HEIGHT_OF_ARMPIT_JOINT_FROM_GROUND = 1; // IN
 
@@ -112,18 +112,24 @@ public abstract class SelfDriving extends LinearOpMode {
         if (!opModeIsActive())
             return;
 
-        double TopLeftArmServoP = hardwareManager.topLeftArmServo.getPosition();
-        double TopRightArmServoP = hardwareManager.topRightArmServo.getPosition();
+        double convertedEndPosition = endPosition/500;
+        double TopLeftArmServoP = hardwareManager.TopLeftArmServo.getPosition();
+        double TopRightArmServoP = hardwareManager.TopRightArmServo.getPosition();
 
-        double TopRightArmServoDestinationSlope = (TopRightArmServoP + endPosition * WRIST_GEAR_RATIO)
+        double TopRightArmServoDestinationSlope = (convertedEndPosition * WRIST_GEAR_RATIO - TopRightArmServoP )
                                                     /timeInMillisecondsForFinish;
-        double TopLeftArmServoDestinationSlope = (TopLeftArmServoP - endPosition * WRIST_GEAR_RATIO)
+        double TopLeftArmServoDestinationSlope = (convertedEndPosition  * WRIST_GEAR_RATIO - TopLeftArmServoP )
                                                     /timeInMillisecondsForFinish;
 
         ElapsedTime elapsedTime = new ElapsedTime();
         while(opModeIsActive() && elapsedTime.milliseconds() < timeInMillisecondsForFinish)
         {
-            hardwareManager.topLeftArmServo.setPosition(
+
+            hardwareManager.TopLeftArmServo.getPosition();
+            hardwareManager.TopRightArmServo.getPosition();
+
+            hardwareManager.TopLeftArmServo.setPosition(
+
                     TopLeftArmServoDestinationSlope * elapsedTime.milliseconds() + TopLeftArmServoP
             );
 
@@ -131,11 +137,20 @@ public abstract class SelfDriving extends LinearOpMode {
                     TopRightArmServoDestinationSlope * elapsedTime.milliseconds() + TopRightArmServoP
             );
 
+            telemetry.addLine(
+                    "Servo Value at [" + elapsedTime.milliseconds() + "]: "
+                            + Double.toString(hardwareManager.TopLeftArmServo.getPosition())
+            );
             /*Don't get all mixed up with my garble, mathematically this is simply akin to
               drawing a straight line between two points on a graph. In this case the two points being the
               current servo position and the desired position by the function.
              */
         }
+    }
+
+    protected void setZeroPositionsForServos(){
+        hardwareManager.TopLeftArmServo.setPosition(0);
+        hardwareManager.TopRightArmServo.setPosition(0);
     }
 
     protected void moveArmpitServos(int endPosition){
