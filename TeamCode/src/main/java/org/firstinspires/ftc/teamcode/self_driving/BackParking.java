@@ -12,7 +12,5 @@ public class BackParking extends SelfDriving {
     @Override
     protected void runAutonomous() {
         move(1.2);
-        sleep(250);
-        move(-0.1);
     }
 }

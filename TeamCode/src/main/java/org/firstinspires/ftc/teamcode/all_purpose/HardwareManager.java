@@ -71,15 +71,22 @@ public class HardwareManager {
         callback.run(bottomLeftArmMotor);
         callback.run(bottomRightArmMotor);
     }
+
     public double getAverageBottomMotorCounts() {
         return (bottomLeftArmMotor.getCurrentPosition() +
                 bottomRightArmMotor.getCurrentPosition()
                 / 2.0);
     }
+
     public void resetBottomMotorCounts() {
         doToAllArmMotors((wheel) -> wheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER));
         doToAllArmMotors((wheel) -> wheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER));
     }
+
+    //------------------------------------------------------------------------------------------------
+    // Drone Launcher
+    //------------------------------------------------------------------------------------------------
+
 
     //------------------------------------------------------------------------------------------------
     // Sensors
@@ -116,8 +123,8 @@ public class HardwareManager {
         // Arm
         topLeftArmServo = hardwareMap.crservo.get("TopLeftS");
         topRightArmServo = hardwareMap.crservo.get("TopRightS");
-        bottomLeftArmMotor = hardwareMap.dcMotor.get("BottomLeftM");
-        bottomRightArmMotor = hardwareMap.dcMotor.get("BottomRightM");
+        bottomLeftArmMotor = hardwareMap.dcMotor.get("LeftArmM");
+        bottomRightArmMotor = hardwareMap.dcMotor.get("RightArmM");
 
         topLeftArmServo.setDirection(CRServo.Direction.FORWARD);
         topLeftArmServo.setDirection(CRServo.Direction.REVERSE);
@@ -126,12 +133,14 @@ public class HardwareManager {
 
         doToAllArmMotors((motor) -> motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
 
+        // Drone Launcher
+
         // Sensors
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
                         RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
-                        RevHubOrientationOnRobot.UsbFacingDirection.UP
+                        RevHubOrientationOnRobot.UsbFacingDirection.DOWN
                 )
         );
 

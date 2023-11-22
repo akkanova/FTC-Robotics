@@ -28,13 +28,19 @@ public abstract class SelfDriving extends LinearOpMode {
     protected final double ARMPIT_GEAR_RATIO = 1;
 
     protected HardwareManager hardwareManager;
-    protected ElapsedTime elapsedTime;
 
     //------------------------------------------------------------------------------------------------
     // Config
     //------------------------------------------------------------------------------------------------
     protected final double MOVEMENT_POWER = 0.5;
     protected final double TURN_POWER  = 0.3;
+
+    protected final long PAUSE_MS = 2050;
+
+    protected void pause() {
+        if (!isStopRequested())
+            sleep(PAUSE_MS);
+    }
 
     //------------------------------------------------------------------------------------------------
     // Movement
@@ -52,13 +58,7 @@ public abstract class SelfDriving extends LinearOpMode {
         }
 
         hardwareManager.doToAllWheels((wheel) -> wheel.setPower(0));
-    }
-
-    //------------------------------------------------------------------------------------------------
-    // Strafing
-    //------------------------------------------------------------------------------------------------
-    protected void strafe(double metersDistance) {
-        // Do that..
+        pause();
     }
 
     //------------------------------------------------------------------------------------------------
@@ -85,6 +85,7 @@ public abstract class SelfDriving extends LinearOpMode {
         }
 
         hardwareManager.doToAllWheels((wheel) -> wheel.setPower(0));
+        pause();
     }
 
     protected boolean hasReachedDesiredAngle(double initialAngle, double turnAngle) {
@@ -120,11 +121,10 @@ public abstract class SelfDriving extends LinearOpMode {
         if (!opModeIsActive())
             return;
 
-        elapsedTime = new ElapsedTime();
-        double finalEndPosition =
-                (SECONDS_FOR_ONE_DEGREE_OF_MOTION) * endPositionAngle * WRIST_GEAR_RATIO * 1000;
-        while(elapsedTime.milliseconds() < finalEndPosition)
-        {
+        ElapsedTime elapsedTime = new ElapsedTime();
+
+        double finalEndPosition = (SECONDS_FOR_ONE_DEGREE_OF_MOTION) * endPositionAngle * WRIST_GEAR_RATIO * 1000;
+        while(opModeIsActive() && elapsedTime.milliseconds() < finalEndPosition) {
             hardwareManager.topLeftArmServo.setPower(MOVEMENT_POWER);
             hardwareManager.topRightArmServo.setPower(MOVEMENT_POWER);
         }
@@ -135,9 +135,8 @@ public abstract class SelfDriving extends LinearOpMode {
         if (!opModeIsActive())
             return;
 
-        // A: look at the code for {@code move()}.. DcMotor.setTargetPosition is somewhat unreliable
         hardwareManager.resetBottomMotorCounts();
-        hardwareManager.doToAllArmMotors((wheel)-> wheel.setPower(MOVEMENT_POWER));
+        hardwareManager.doToAllArmMotors((wheel) -> wheel.setPower(MOVEMENT_POWER));
 
         double totalCounts = COUNTS_PER_ANGLE * endPositionAngle * ARMPIT_GEAR_RATIO;
         while (opModeIsActive() && hardwareManager.getAverageBottomMotorCounts() <= totalCounts) {
