@@ -15,12 +15,20 @@ public abstract class SelfDriving extends LinearOpMode {
     protected final double COUNTS_PER_METER =
             COUNTS_PER_MOTOR_REVOLUTION / WHEEL_CIRCUMFERENCE;
 
-    protected final double WRIST_GEAR_RATIO = 1;
-    protected final double POSITIONS_PER_SERVO_ROTATION = 1;
-    protected final double POSITIONS_PER_SERVO_ANGLE = POSITIONS_PER_SERVO_ROTATION / 360;
+
+    protected final double SECONDS_FOR_ONE_DEGREE_OF_MOTION = 0 / 180; // (How long it takes for the wrist to turn a 180)/(180 degrees)
+    protected final double COUNTS_PER_SERVO_ANGLE = 1;
+
+    protected final int COUNTS_PER_ARM_MOTOR_REVOLUTION = 1;
+    protected final double COUNTS_PER_ANGLE =
+            COUNTS_PER_ARM_MOTOR_REVOLUTION / 360.0; //DEGREES
     protected final double HEIGHT_OF_ARMPIT_JOINT_FROM_GROUND = 1; // IN
 
+    protected final double WRIST_GEAR_RATIO = 1;
+    protected final double ARMPIT_GEAR_RATIO = 1;
+
     protected HardwareManager hardwareManager;
+    protected ElapsedTime elapsedTime;
 
     //------------------------------------------------------------------------------------------------
     // Config
@@ -108,58 +116,35 @@ public abstract class SelfDriving extends LinearOpMode {
         */
 
 
-    protected void moveWristServos(double endPosition, double timeInMillisecondsForFinish){
+    protected void moveWristServos(double endPositionAngle){
         if (!opModeIsActive())
             return;
 
-        double convertedEndPosition = endPosition/500;
-        double TopLeftArmServoP = hardwareManager.TopLeftArmServo.getPosition();
-        double TopRightArmServoP = hardwareManager.TopRightArmServo.getPosition();
-
-        double TopRightArmServoDestinationSlope = (convertedEndPosition * WRIST_GEAR_RATIO - TopRightArmServoP )
-                                                    /timeInMillisecondsForFinish;
-        double TopLeftArmServoDestinationSlope = (convertedEndPosition  * WRIST_GEAR_RATIO - TopLeftArmServoP )
-                                                    /timeInMillisecondsForFinish;
-
-        ElapsedTime elapsedTime = new ElapsedTime();
-        while(opModeIsActive() && elapsedTime.milliseconds() < timeInMillisecondsForFinish)
+        elapsedTime = new ElapsedTime();
+        double finalEndPosition =
+                (SECONDS_FOR_ONE_DEGREE_OF_MOTION) * endPositionAngle * WRIST_GEAR_RATIO * 1000;
+        while(elapsedTime.milliseconds() < finalEndPosition)
         {
-
-            hardwareManager.TopLeftArmServo.getPosition();
-            hardwareManager.TopRightArmServo.getPosition();
-
-            hardwareManager.TopLeftArmServo.setPosition(
-
-                    TopLeftArmServoDestinationSlope * elapsedTime.milliseconds() + TopLeftArmServoP
-            );
-
-            hardwareManager.topRightArmServo.setPosition(
-                    TopRightArmServoDestinationSlope * elapsedTime.milliseconds() + TopRightArmServoP
-            );
-
-            telemetry.addLine(
-                    "Servo Value at [" + elapsedTime.milliseconds() + "]: "
-                            + Double.toString(hardwareManager.TopLeftArmServo.getPosition())
-            );
-            /*Don't get all mixed up with my garble, mathematically this is simply akin to
-              drawing a straight line between two points on a graph. In this case the two points being the
-              current servo position and the desired position by the function.
-             */
+            hardwareManager.topLeftArmServo.setPower(MOVEMENT_POWER);
+            hardwareManager.topRightArmServo.setPower(MOVEMENT_POWER);
         }
     }
 
-    protected void setZeroPositionsForServos(){
-        hardwareManager.TopLeftArmServo.setPosition(0);
-        hardwareManager.TopRightArmServo.setPosition(0);
-    }
 
-    protected void moveArmpitServos(int endPosition){
+    protected void moveArmpitServos(int endPositionAngle){
         if (!opModeIsActive())
             return;
 
         // A: look at the code for {@code move()}.. DcMotor.setTargetPosition is somewhat unreliable
-        hardwareManager.bottomLeftArmMotor.setTargetPosition(endPosition);
-        hardwareManager.bottomRightArmMotor.setTargetPosition(endPosition);
+        hardwareManager.resetBottomMotorCounts();
+        hardwareManager.doToAllArmMotors((wheel)-> wheel.setPower(MOVEMENT_POWER));
+
+        double totalCounts = COUNTS_PER_ANGLE * endPositionAngle * ARMPIT_GEAR_RATIO;
+        while (opModeIsActive() && hardwareManager.getAverageBottomMotorCounts() <= totalCounts) {
+            idle();
+        }
+
+        hardwareManager.doToAllArmMotors((wheel) -> wheel.setPower(0));
     }
 
     protected void changeWristPosByRange(double range){
@@ -167,8 +152,8 @@ public abstract class SelfDriving extends LinearOpMode {
             return;
 
         double angleAtRange = Math.atan(range/ HEIGHT_OF_ARMPIT_JOINT_FROM_GROUND);
-        double angleToPosition = angleAtRange * POSITIONS_PER_SERVO_ANGLE;
-        moveWristServos(angleToPosition, 5000);
+        double angleToPosition = angleAtRange * COUNTS_PER_SERVO_ANGLE;
+        moveWristServos(angleToPosition);
     }
 
 

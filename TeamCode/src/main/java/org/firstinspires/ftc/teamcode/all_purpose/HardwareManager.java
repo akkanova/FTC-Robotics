@@ -1,11 +1,7 @@
 package org.firstinspires.ftc.teamcode.all_purpose;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.*;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
@@ -65,8 +61,8 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     // Arm
     //------------------------------------------------------------------------------------------------
-    public final Servo topLeftArmServo;
-    public final Servo topRightArmServo;
+    public final CRServo topLeftArmServo;
+    public final CRServo topRightArmServo;
     public final DcMotor bottomLeftArmMotor;
     public final DcMotor bottomRightArmMotor;
 
@@ -75,7 +71,11 @@ public class HardwareManager {
         callback.run(bottomLeftArmMotor);
         callback.run(bottomRightArmMotor);
     }
-
+    public double getAverageBottomMotorCounts() {
+        return (bottomLeftArmMotor.getCurrentPosition() +
+                bottomRightArmMotor.getCurrentPosition()
+                / 2.0);
+    }
     public void resetBottomMotorCounts() {
         doToAllArmMotors((wheel) -> wheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER));
         doToAllArmMotors((wheel) -> wheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER));
@@ -114,13 +114,13 @@ public class HardwareManager {
         doToAllWheels((wheel) -> wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
 
         // Arm
-        topLeftArmServo = hardwareMap.servo.get("TopLeftS");
-        topRightArmServo = hardwareMap.servo.get("TopRightS");
+        topLeftArmServo = hardwareMap.crservo.get("TopLeftS");
+        topRightArmServo = hardwareMap.crservo.get("TopRightS");
         bottomLeftArmMotor = hardwareMap.dcMotor.get("BottomLeftM");
         bottomRightArmMotor = hardwareMap.dcMotor.get("BottomRightM");
 
-        topLeftArmServo.setDirection(Servo.Direction.FORWARD);
-        topLeftArmServo.setDirection(Servo.Direction.REVERSE);
+        topLeftArmServo.setDirection(CRServo.Direction.FORWARD);
+        topLeftArmServo.setDirection(CRServo.Direction.REVERSE);
         bottomLeftArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         bottomRightArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
