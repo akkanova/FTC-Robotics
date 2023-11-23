@@ -22,7 +22,7 @@ public class OpenCV extends SelfDriving {
         telemetry.update();
 
         // Live Preview Only works before the loop
-        computerVision.initialize(ComputerVision.Processors.TEST,true);
+        computerVision.initialize(ComputerVision.Processors.PIXEL_COLOR,true);
 
         waitForStart();
         runAutonomous();
@@ -31,8 +31,8 @@ public class OpenCV extends SelfDriving {
     @Override
     protected void runAutonomous() {
         while (opModeIsActive()) {
-            List<AprilTagDetection> currentDetections = computerVision.aprilTagProcessor.getDetections();
-            telemetry.addData("# AprilTags Detected", currentDetections.size());
+//            List<AprilTagDetection> currentDetections = computerVision.aprilTagProcessor.getDetections();
+//            telemetry.addData("# AprilTags Detected", currentDetections.size());
 
             // Intentional Idle Loop
 //            for (AprilTagDetection detection : currentDetections) {

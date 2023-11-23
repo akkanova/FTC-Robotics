@@ -20,13 +20,10 @@ public class TankControl extends HumanOperated {
         useDefaultDroneLauncherControl();
         useDefaultArmControl();
 
-        double leftPower = -gamepad1.left_stick_y;
-        double rightPower = -gamepad1.right_stick_y;
-
-        frontLeftWheelP = leftPower;
-        frontRightWheelP = rightPower;
-        backLeftWheelP = leftPower;
-        backRightWheelP = rightPower;
+        frontLeftWheelP = -gamepad1.left_stick_y;
+        frontRightWheelP = -gamepad1.right_stick_y;
+        backLeftWheelP = -gamepad1.left_stick_y;
+        backRightWheelP = -gamepad1.right_stick_y;
 
         setHardwarePower();
     }

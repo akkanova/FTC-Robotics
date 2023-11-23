@@ -86,12 +86,14 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     // Drone Launcher
     //------------------------------------------------------------------------------------------------
+//    public final Servo launcherBaseServo;
+//    public final Servo launchHookServo;
 
 
     //------------------------------------------------------------------------------------------------
     // Sensors
     //------------------------------------------------------------------------------------------------
-    public IMU imu;
+    public final IMU imu;
 
     /**
      * Returns a normalized robot yaw orientation in Degrees (°)
@@ -134,6 +136,8 @@ public class HardwareManager {
         doToAllArmMotors((motor) -> motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
 
         // Drone Launcher
+//        launcherBaseServo = hardwareMap.servo.get("LauncherBaseS");
+//        launchHookServo = hardwareMap.servo.get("LauncherHookS");
 
         // Sensors
         imu = hardwareMap.get(IMU.class, "imu");

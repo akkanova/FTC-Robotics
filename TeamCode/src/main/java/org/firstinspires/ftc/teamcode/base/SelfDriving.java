@@ -19,10 +19,9 @@ public abstract class SelfDriving extends LinearOpMode {
     protected final double SECONDS_FOR_ONE_DEGREE_OF_MOTION = 0 / 180; // (How long it takes for the wrist to turn a 180)/(180 degrees)
     protected final double COUNTS_PER_SERVO_ANGLE = 1;
 
-    protected final int COUNTS_PER_ARM_MOTOR_REVOLUTION = 1;
     protected final double COUNTS_PER_ANGLE =
-            COUNTS_PER_ARM_MOTOR_REVOLUTION / 360.0; //DEGREES
-    protected final double HEIGHT_OF_ARMPIT_JOINT_FROM_GROUND = 1; // IN
+            COUNTS_PER_MOTOR_REVOLUTION / 360.0; // DEGREES
+    protected final double HEIGHT_OF_ARMPIT_JOINT_FROM_GROUND = 1; // M
 
     protected final double WRIST_GEAR_RATIO = 1;
     protected final double ARMPIT_GEAR_RATIO = 1;
@@ -35,7 +34,7 @@ public abstract class SelfDriving extends LinearOpMode {
     protected final double MOVEMENT_POWER = 0.5;
     protected final double TURN_POWER  = 0.3;
 
-    protected final long PAUSE_MS = 2050;
+    protected final long PAUSE_MS = 250;
 
     protected void pause() {
         if (!isStopRequested())
@@ -80,7 +79,7 @@ public abstract class SelfDriving extends LinearOpMode {
         hardwareManager.backLeftWheel.setPower(leftPower);
         hardwareManager.backRightWheel.setPower(rightPower);
 
-        while(opModeIsActive() && hasReachedDesiredAngle(initialAngle, degreeAngle)) {
+        while (opModeIsActive() && hasReachedDesiredAngle(initialAngle, degreeAngle)) {
             idle();
         }
 
@@ -117,17 +116,22 @@ public abstract class SelfDriving extends LinearOpMode {
         */
 
 
-    protected void moveWristServos(double endPositionAngle){
+    protected void moveWristServos(double endPositionAngle) {
         if (!opModeIsActive())
             return;
 
         ElapsedTime elapsedTime = new ElapsedTime();
 
-        double finalEndPosition = (SECONDS_FOR_ONE_DEGREE_OF_MOTION) * endPositionAngle * WRIST_GEAR_RATIO * 1000;
-        while(opModeIsActive() && elapsedTime.milliseconds() < finalEndPosition) {
-            hardwareManager.topLeftArmServo.setPower(MOVEMENT_POWER);
-            hardwareManager.topRightArmServo.setPower(MOVEMENT_POWER);
+        double requiredTimeMS = (SECONDS_FOR_ONE_DEGREE_OF_MOTION) * endPositionAngle * WRIST_GEAR_RATIO * 1000;
+        hardwareManager.topLeftArmServo.setPower(MOVEMENT_POWER);
+        hardwareManager.topRightArmServo.setPower(MOVEMENT_POWER);
+
+        while (opModeIsActive() && elapsedTime.milliseconds() < requiredTimeMS) {
+            idle();
         }
+
+        hardwareManager.topLeftArmServo.setPower(0);
+        hardwareManager.topRightArmServo.setPower(0);
     }
 
 

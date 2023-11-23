@@ -1,17 +1,13 @@
 package org.firstinspires.ftc.teamcode.all_purpose;
 
-import android.graphics.Canvas;
 import android.util.Size;
-
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.teamcode.all_purpose.processors.ColorDetectionProcessor;
+import org.firstinspires.ftc.teamcode.all_purpose.processors.TestProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
 
 /**
  * Contains all the processors, and setup code for Computer Vision.
@@ -20,6 +16,7 @@ import org.opencv.imgproc.Imgproc;
  *   WEBCAM-SNAPSHOT-IMAGE  ->  APRIL-TAG-PROCESSOR  ->  FINAL-IMAGE-WITH-BOXES & MAGICAL-POS-DATA
  */
 public class ComputerVision {
+    public ColorDetectionProcessor colorDetectionProcessor;
     public AprilTagProcessor aprilTagProcessor;
     public VisionPortal visionPortal;
 
@@ -54,7 +51,8 @@ public class ComputerVision {
     public static class Processors {
         public static final byte TEST = 1;
         public static final byte APRIL_TAG = 2;
-        public static final byte PIXEL = 4;
+        public static final byte TENSORFLOW_PIXEL_MODEL = 4;
+        public static final byte PIXEL_COLOR = 8;
     }
 
     /** Previews are CPU intensive, so they are disabled by default.. **/
@@ -87,8 +85,13 @@ public class ComputerVision {
             visionBuilder.addProcessor(aprilTagProcessor);
         }
 
-        if ((processors & Processors.PIXEL) == Processors.PIXEL) {
+        if ((processors & Processors.TENSORFLOW_PIXEL_MODEL) == Processors.TENSORFLOW_PIXEL_MODEL) {
             // .. Initialize a TFOD Model
+        }
+
+        if ((processors & Processors.PIXEL_COLOR) == Processors.PIXEL_COLOR) {
+            colorDetectionProcessor = new ColorDetectionProcessor();
+            visionBuilder.addProcessor(colorDetectionProcessor);
         }
 
         visionPortal = visionBuilder.build();
@@ -104,24 +107,5 @@ public class ComputerVision {
 
     public void destroy() {
         visionPortal.close();
-    }
-
-
-    //------------------------------------------------------------------------------------------------
-    // Processors
-    //------------------------------------------------------------------------------------------------
-
-    private class TestProcessor implements VisionProcessor {
-        @Override
-        public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {}
-        @Override
-        public void init(int width, int height, CameraCalibration calibration) {}
-
-        @Override
-        public Object processFrame(Mat frame, long captureTimeNanos) {
-            // Grayscale it
-            Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGBA2GRAY);
-            return frame;
-        }
     }
 }
