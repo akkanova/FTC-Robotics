@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.all_purpose;
 
 import android.util.Size;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -74,13 +73,6 @@ public class ComputerVision {
             .enableLiveView(enablePreview)
             .setCamera(webcamName);
 
-        if (enablePreview) {
-            // FTC Live Preview Dashboard stuff.. View @ https:\\192.168.43.1:8080\dash
-            FtcDashboardProcessor dashboardStream = new FtcDashboardProcessor();
-            visionBuilder.addProcessor(dashboardStream);
-            FtcDashboard.getInstance().startCameraStream(dashboardStream, 1);
-        }
-
         if ((processors & Processors.TEST) == Processors.TEST) {
             visionBuilder.addProcessor(new TestProcessor());
         }
@@ -102,6 +94,10 @@ public class ComputerVision {
         if ((processors & Processors.PIXEL_COLOR) == Processors.PIXEL_COLOR) {
             colorDetectionProcessor = new ColorDetectionProcessor();
             visionBuilder.addProcessor(colorDetectionProcessor);
+        }
+
+        if (enablePreview) {
+            visionBuilder.addProcessor(FtcDashboardProcessor.create());
         }
 
         visionPortal = visionBuilder.build();

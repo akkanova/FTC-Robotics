@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.all_purpose.processors;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
@@ -23,6 +25,12 @@ public class FtcDashboardProcessor implements VisionProcessor, CameraStreamSourc
     private final AtomicReference<Bitmap> lastFrame;
     public FtcDashboardProcessor() {
         lastFrame = new AtomicReference<>(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565));
+    }
+
+    public static FtcDashboardProcessor create() {
+        FtcDashboardProcessor processorInstance = new FtcDashboardProcessor();
+        FtcDashboard.getInstance().startCameraStream(processorInstance, 0);
+        return processorInstance;
     }
 
     @Override

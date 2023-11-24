@@ -4,9 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.all_purpose.ComputerVision;
 import org.firstinspires.ftc.teamcode.all_purpose.HardwareManager;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.teamcode.base.SelfDriving;
-import java.util.List;
 
 @Autonomous(name = "OpenCV Test", group = "Test")
 public class OpenCV extends SelfDriving {
@@ -22,9 +20,7 @@ public class OpenCV extends SelfDriving {
         telemetry.update();
 
         // Live Preview Only works before the loop
-        computerVision.initialize(
-                ComputerVision.Processors.PIXEL_COLOR |
-                        ComputerVision.Processors.TEST,true);
+        computerVision.initialize(ComputerVision.Processors.PIXEL_COLOR ,true);
 
         waitForStart();
         runAutonomous();

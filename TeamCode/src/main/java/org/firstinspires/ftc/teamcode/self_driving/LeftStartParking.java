@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.base.SelfDriving;
 public class LeftStartParking extends SelfDriving {
     @Override
     protected void runAutonomous() {
-        move(1.5);
+        move(1.4);
         rotate(-90);
         move(2.6);
     }
