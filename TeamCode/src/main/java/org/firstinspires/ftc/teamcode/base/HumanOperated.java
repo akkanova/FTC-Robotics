@@ -37,6 +37,7 @@ public abstract class HumanOperated extends OpMode {
     protected double clawServoP = 0;
 
     protected double droneReleaseServoP = 0;
+    protected double droneBaseServoP = 0;
 
     //------------------------------------------------------------------------------------------------
     // Config
@@ -84,17 +85,17 @@ public abstract class HumanOperated extends OpMode {
         // Lower Arm
         // Side note: too heavy to maintain balance
         if (gamepad1.right_bumper) {
-            bottomArmServoP = SERVO_DELTA;
+            bottomArmServoP = SERVO_DELTA * 0.5;
         } else if (gamepad1.right_trigger > GP_TRIGGER_THRESHOLD) {
-            bottomArmServoP = -SERVO_DELTA;
+            bottomArmServoP = SERVO_DELTA * -0.5;
         } else {
             bottomArmServoP = 0;
         }
 
         // Claw
-        if (gamepad1.dpad_up) {
+        if (gamepad1.dpad_left) {
             clawServoP = -SERVO_DELTA;
-        } else if (gamepad1.dpad_down) {
+        } else if (gamepad1.dpad_right) {
             clawServoP = SERVO_DELTA;
         } else {
             clawServoP = 0;
@@ -105,6 +106,14 @@ public abstract class HumanOperated extends OpMode {
         droneReleaseServoP = gamepad1.start || gamepad2.start
                 ? -SERVO_LOWER_POWER_LIMIT
                 : 0;
+
+        if (gamepad1.dpad_up) {
+            droneBaseServoP = 0.6;
+        } else if (gamepad1.dpad_down) {
+            droneBaseServoP = -0.6;
+        } else {
+            droneBaseServoP = 0;
+        }
     }
 
     //------------------------------------------------------------------------------------------------
@@ -127,8 +136,10 @@ public abstract class HumanOperated extends OpMode {
         hardwareManager.bottomLeftArmMotor.setPower(limitServoPower(bottomArmServoP));
         hardwareManager.bottomRightArmMotor.setPower(limitServoPower(bottomArmServoP));
 
-//        hardwareManager.droneReleaseServo.setPower(droneReleaseServoP);
-//        hardwareManager.clawServo.setPower(clawServoP);
+        hardwareManager.droneReleaseServo.setPower(droneReleaseServoP);
+        hardwareManager.droneBaseServo.setPosition(droneBaseServoP);
+
+        hardwareManager.clawServo.setPower(clawServoP);
     }
 
     protected double limitMotorPower(double input) {

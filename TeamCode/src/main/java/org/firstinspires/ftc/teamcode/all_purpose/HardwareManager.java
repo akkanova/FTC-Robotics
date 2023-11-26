@@ -65,6 +65,7 @@ public class HardwareManager {
     public final CRServo topRightArmServo;
     public final DcMotor bottomLeftArmMotor;
     public final DcMotor bottomRightArmMotor;
+    public final CRServo clawServo;
 
     /** Similar to {@code doToAllWheels()} but only for the bottom arm DcMotors. */
     public void doToAllArmMotors(WheelCallback callback) {
@@ -86,8 +87,8 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     // Drone Launcher
     //------------------------------------------------------------------------------------------------
-//    public final Servo launcherBaseServo;
-//    public final Servo launchHookServo;
+    public final Servo droneBaseServo;
+    public final CRServo droneReleaseServo;
 
 
     //------------------------------------------------------------------------------------------------
@@ -127,17 +128,22 @@ public class HardwareManager {
         topRightArmServo = hardwareMap.crservo.get("TopRightS");
         bottomLeftArmMotor = hardwareMap.dcMotor.get("LeftArmM");
         bottomRightArmMotor = hardwareMap.dcMotor.get("RightArmM");
+        clawServo = hardwareMap.crservo.get("ClawS");
 
         topLeftArmServo.setDirection(CRServo.Direction.FORWARD);
         topLeftArmServo.setDirection(CRServo.Direction.REVERSE);
         bottomLeftArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         bottomRightArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        clawServo.setDirection(CRServo.Direction.FORWARD);
 
         doToAllArmMotors((motor) -> motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
 
         // Drone Launcher
-//        launcherBaseServo = hardwareMap.servo.get("LauncherBaseS");
-//        launchHookServo = hardwareMap.servo.get("LauncherHookS");
+        droneBaseServo = hardwareMap.servo.get("LauncherBaseS");
+        droneReleaseServo = hardwareMap.crservo.get("LauncherHookS");
+
+        droneBaseServo.setDirection(Servo.Direction.REVERSE);
+        droneReleaseServo.setDirection(CRServo.Direction.REVERSE);
 
         // Sensors
         imu = hardwareMap.get(IMU.class, "imu");

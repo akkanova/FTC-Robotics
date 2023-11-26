@@ -35,6 +35,7 @@ public abstract class SelfDriving extends LinearOpMode {
     protected final double TURN_POWER  = 0.3;
 
     protected final long PAUSE_MS = 250;
+    protected final long CLAW_OPEN_MS = 500;
 
     protected void pause() {
         if (!isStopRequested())
@@ -157,6 +158,20 @@ public abstract class SelfDriving extends LinearOpMode {
         double angleAtRange = Math.atan(range/ HEIGHT_OF_ARMPIT_JOINT_FROM_GROUND);
         double angleToPosition = angleAtRange * COUNTS_PER_SERVO_ANGLE;
         moveWristServos(angleToPosition);
+    }
+
+    protected void openClaw() {
+        if (!opModeIsActive())
+            return;
+
+        ElapsedTime elapsedTime = new ElapsedTime();
+        hardwareManager.clawServo.setPower(0.7);
+
+        while (opModeIsActive() && elapsedTime.milliseconds() < CLAW_OPEN_MS) {
+            // Idle loop
+        }
+
+        hardwareManager.clawServo.setPower(0);
     }
 
 

@@ -43,9 +43,15 @@ public class SplitControl extends HumanOperated {
         // If the left joy stick does not receive any left/right input, try reading
         // from the right joystick. Allowing claw controls to be
         // received from both left and right joysticks.
-        clawServoP = gamepad2.left_stick_x != 0
-                ? gamepad2.left_stick_x
-                : gamepad2.right_stick_x;
+
+        // Claw
+        if (gamepad2.dpad_left) {
+            clawServoP = -SERVO_DELTA;
+        } else if (gamepad2.dpad_right) {
+            clawServoP = SERVO_DELTA;
+        } else {
+            clawServoP = 0;
+        }
 
         clawServoP *= JOYSTICK_TO_CLAW_MULTIPLIER;
 
