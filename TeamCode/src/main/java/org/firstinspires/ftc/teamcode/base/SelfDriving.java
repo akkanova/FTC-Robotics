@@ -164,13 +164,8 @@ public abstract class SelfDriving extends LinearOpMode {
         if (!opModeIsActive())
             return;
 
-        ElapsedTime elapsedTime = new ElapsedTime();
         hardwareManager.clawServo.setPower(0.7);
-
-        while (opModeIsActive() && elapsedTime.milliseconds() < CLAW_OPEN_MS) {
-            // Idle loop
-        }
-
+        pause();
         hardwareManager.clawServo.setPower(0);
     }
 
