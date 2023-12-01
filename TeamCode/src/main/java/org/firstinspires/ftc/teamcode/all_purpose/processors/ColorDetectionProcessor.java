@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.all_purpose.processors;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.concurrent.atomic.AtomicReference;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,6 +13,7 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -27,20 +28,21 @@ public class ColorDetectionProcessor implements VisionProcessor {
     private static final Scalar UPPER_HSV = new Scalar(172,111,255);
     private static final int CANVAS_PADDING_PX = 12;
 
-    private final AtomicLongArray approxLocation = new AtomicLongArray(2);
+    private final AtomicReference<Point> approxLocation = new AtomicReference<>();
     private final Object drawSync = new Object(); // Multi-threading ..
     private int cameraHeight;
     private int cameraWidth;
 
-    public static class FoundRegions {
-        public static final byte NONE = 0;
-        public static final byte LEFT = 1;
-        public static final byte CENTER = 2;
-        public static final byte RIGHT = 4;
+    public enum FoundRegion {
+        NONE,
+        LEFT,
+        CENTER,
+        RIGHT
     }
 
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
+        this.approxLocation.set(new Point(-1, -1));
         this.cameraHeight = height;
         this.cameraWidth = width;
     }
@@ -78,7 +80,7 @@ public class ColorDetectionProcessor implements VisionProcessor {
         }
 
         // For testing purposes only
-//        Core.copyTo(masked, frame, masked);
+        // Core.copyTo(masked, frame, masked);
 
         // Cleanup
         hsvFrame.release();
@@ -90,9 +92,8 @@ public class ColorDetectionProcessor implements VisionProcessor {
         if (largestContour != null) {
             // Get its center
             Moments moments = Imgproc.moments(largestContour);
-
-            approxLocation.set(0, (long) (moments.get_m10() / moments.get_m00())); // x - pos
-            approxLocation.set(1, (long) (moments.get_m01() / moments.get_m00())); // y - pos
+            approxLocation.get().x = moments.get_m10() / moments.get_m00();
+            approxLocation.get().y = moments.get_m01() / moments.get_m00();
             largestContour.release();
 
             return true;
@@ -117,47 +118,47 @@ public class ColorDetectionProcessor implements VisionProcessor {
             paint.setStyle(Paint.Style.FILL);
             paint.setTextSize(64);
 
-            float onScreenXPos = (float) (approxLocation.get(0) - 1.0) / cameraWidth * onscreenWidth + 1;
-            float onScreenYPos = (float) (approxLocation.get(1) - 1.0) / cameraHeight * onscreenHeight + 1;
+            Point location = approxLocation.get();
+            float onScreenXPos = (float) (location.x - 1.0) / cameraWidth * onscreenWidth + 1;
+            float onScreenYPos = (float) (location.y - 1.0) / cameraHeight * onscreenHeight + 1;
 
-            String label = "(" + approxLocation.get(0) + ", " + approxLocation.get(1) + ")";
+            String label = "(" + location.x + ", " + location.y + ")";
             canvas.drawText(label, onScreenXPos, onScreenYPos, paint);
             canvas.drawCircle(onScreenXPos, onScreenYPos, 20, paint);
 
             paint.setStrokeWidth(12);
             paint.setStyle(Paint.Style.STROKE);
 
-            int regions = getRegion();
-            int width = onscreenWidth / 3;
-            int height = onscreenHeight - CANVAS_PADDING_PX;
-//
-            for (int regionIndex = 0; regionIndex < 3; regionIndex++) {
-                int regionBit = (int) Math.pow(2, regionIndex);
+            // Assume that region returned from this is not NONE
+            FoundRegion region = getRegion();
 
-                if ((regions & regionBit) == regionBit) {
-                    int left = (width * regionIndex) + CANVAS_PADDING_PX;
-                    canvas.drawRect(
-                        left, CANVAS_PADDING_PX,
-                        left + width - CANVAS_PADDING_PX * 2, height,
-                        paint);
-                }
-            }
+            int width = onscreenWidth / 3;
+            int left = (width * region.ordinal() + CANVAS_PADDING_PX);
+
+            canvas.drawRect(
+                left, CANVAS_PADDING_PX,
+                left + width - CANVAS_PADDING_PX * 2,
+                onscreenHeight - CANVAS_PADDING_PX,
+                paint);
         }
     }
 
-    public int getRegion() {
-        double width = cameraWidth / 3;
-        double xPos = approxLocation.get(0);
-        int regions = FoundRegions.NONE;
+    public FoundRegion getRegion() {
+        Point location = approxLocation.get();
 
-        if (xPos >= 0 && xPos <= width)
-            regions |= FoundRegions.LEFT;
-        if (xPos > width && xPos < width * 2)
-            regions |= FoundRegions.CENTER;
-        if (xPos >= width * 2 && xPos <= cameraWidth)
-            regions |= FoundRegions.RIGHT;
+        if (location == null ||
+            location.x < 0   ||
+            location.y < 0)
+            return FoundRegion.NONE;
 
-        return regions;
+        double width = cameraWidth / 3.0;
+
+        if (location.x >= 0 && location.x <= width)
+            return FoundRegion.LEFT;
+        else if (location.x > width && location.x < width * 2)
+            return FoundRegion.CENTER;
+        else
+            return FoundRegion.RIGHT;
     }
 }
 

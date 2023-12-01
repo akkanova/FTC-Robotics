@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.all_purpose.processors.ColorDetectionProce
 import org.firstinspires.ftc.teamcode.all_purpose.processors.TestProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
 /**
  * Contains all the processors, and setup code for Computer Vision.
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 public class ComputerVision {
     public ColorDetectionProcessor colorDetectionProcessor;
     public AprilTagProcessor aprilTagProcessor;
+    public TfodProcessor tfodProcessor;
     public VisionPortal visionPortal;
 
     private final WebcamName webcamName;
@@ -88,7 +90,10 @@ public class ComputerVision {
         }
 
         if ((processors & Processors.TENSORFLOW_PIXEL_MODEL) == Processors.TENSORFLOW_PIXEL_MODEL) {
-            // .. Initialize a TFOD Model
+            tfodProcessor = new TfodProcessor.Builder()
+                    // Setup tfod asset file
+                    .build();
+            visionBuilder.addProcessor(tfodProcessor);
         }
 
         if ((processors & Processors.PIXEL_COLOR) == Processors.PIXEL_COLOR) {
