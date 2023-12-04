@@ -19,11 +19,10 @@ import org.firstinspires.ftc.teamcode.base.HumanOperated;
 @TeleOp(name = "Normal Control", group = "TeleOp")
 public class NormalControl extends HumanOperated {
     @Override
-    public void loop() {
-        useDefaultDroneLauncherControl();
+    protected void processUserInput() {
+        useDefaultDroneLauncherControls();
         useDefaultMovementControls();
-        useDefaultArmControl();
-
-        setHardwarePower();
+        useDefaultLiftControls();
+        useDefaultArmControls();
     }
 }

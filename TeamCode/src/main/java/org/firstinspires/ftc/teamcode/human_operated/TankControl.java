@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.human_operated;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.all_purpose.Misc;
 import org.firstinspires.ftc.teamcode.base.HumanOperated;
 
 /**
@@ -16,15 +18,19 @@ import org.firstinspires.ftc.teamcode.base.HumanOperated;
 @TeleOp(name = "Tank Control", group = "TeleOp")
 public class TankControl extends HumanOperated {
     @Override
-    public void loop() {
-        useDefaultDroneLauncherControl();
-        useDefaultArmControl();
+    public void processUserInput() {
+        useDefaultDroneLauncherControls();
+        useDefaultLiftControls();
+        useDefaultArmControls();
 
-        frontLeftWheelP = -gamepad1.left_stick_y;
-        frontRightWheelP = -gamepad1.right_stick_y;
-        backLeftWheelP = -gamepad1.left_stick_y;
-        backRightWheelP = -gamepad1.right_stick_y;
+        double leftPower   = -Misc.easeWithCubic(gamepad1.left_stick_y);
+        double leftStrafe  = Misc.easeWithCubic(gamepad1.left_stick_x);
+        double rightPower  = -Misc.easeWithCubic(gamepad1.right_stick_y);
+        double rightStrafe = Misc.easeWithCubic(gamepad1.right_stick_x);
 
-        setHardwarePower();
+        frontLeftWheelPower  = leftPower  + leftStrafe;
+        frontRightWheelPower = rightPower - leftStrafe;
+        backLeftWheelPower   = leftPower  + rightStrafe;
+        backRightWheelPower  = rightPower - rightStrafe;
     }
 }

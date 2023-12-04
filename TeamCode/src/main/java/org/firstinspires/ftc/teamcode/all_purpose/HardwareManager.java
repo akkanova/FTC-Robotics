@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.all_purpose;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.*;
 
+import org.firstinspires.ftc.robotcore.external.Consumer;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 /**
@@ -14,86 +15,55 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     // Wheels
     //------------------------------------------------------------------------------------------------
-    public final DcMotor frontLeftWheel;
-    public final DcMotor frontRightWheel;
-    public final DcMotor backLeftWheel;
-    public final DcMotor backRightWheel;
+    public final DcMotorImpl[] wheels;
 
-    /**
-     * let `n` be return value;
-     *      n < 0 = Motors went reversed.
-     *      n > 0 = Motors went forward.
-     */
-    public double getAverageWheelCounts() {
-        return (frontLeftWheel.getCurrentPosition() +
-                frontRightWheel.getCurrentPosition() +
-                backLeftWheel.getCurrentPosition() +
-                backRightWheel.getCurrentPosition()) / 4.0;
+    public DcMotorImpl getFrontLeftWheel()  { return wheels[0]; }
+    public DcMotorImpl getFrontRightWheel() { return wheels[1]; }
+    public DcMotorImpl getBackLeftWheel()   { return wheels[2]; }
+    public DcMotorImpl getBackRightWheel()  { return wheels[3]; }
+
+    public void doForAllWheels(Consumer<DcMotorImpl> callback) {
+        for (DcMotorImpl wheel : wheels)
+            callback.accept(wheel);
     }
 
-    public void resetWheelCounts() {
-        doToAllWheels((wheel) -> wheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER));
-        doToAllWheels((wheel) -> wheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER));
+    public void resetWheelEncoders() {
+        doForAllWheels(this::resetDcMotorEncoder);
     }
 
-    /**
-     * For each wheel motor run that specific callback.
-     * Converting this:
-     *      frontLeftWheel.doTheSameCommand();
-     *      frontRightWheel.doTheSameCommand();
-     *      backLeftWheel.doTheSameCommand();
-     *      backRightWheel.doTheSameCommand();
-     *
-     * To this:
-     *      doToAllWheels((wheel) -> wheel.doTheSameCommand());
-     */
-    public void doToAllWheels(WheelCallback callback) {
-        callback.run(frontLeftWheel);
-        callback.run(frontRightWheel);
-        callback.run(backLeftWheel);
-        callback.run(backRightWheel);
-    }
+    public int getAverageWheelCounts() {
+        int total = 0;
+        for (DcMotorImpl wheel : wheels)
+            total += wheel.getCurrentPosition();
 
-    public interface WheelCallback {
-        void run(DcMotor motor);
+        return total / wheels.length;
     }
 
     //------------------------------------------------------------------------------------------------
     // Arm
     //------------------------------------------------------------------------------------------------
-    public final CRServo topLeftArmServo;
-    public final CRServo topRightArmServo;
-    public final DcMotor bottomLeftArmMotor;
-    public final DcMotor bottomRightArmMotor;
-    public final CRServo clawServo;
+    public final CRServoImplEx clawServo;
+    public final CRServoImplEx topArmServo;
+    public final DcMotorImpl bottomArmMotor;
 
-    /** Similar to {@code doToAllWheels()} but only for the bottom arm DcMotors. */
-    public void doToAllArmMotors(WheelCallback callback) {
-        callback.run(bottomLeftArmMotor);
-        callback.run(bottomRightArmMotor);
-    }
-
-    public double getAverageBottomMotorCounts() {
-        return (bottomLeftArmMotor.getCurrentPosition() +
-                bottomRightArmMotor.getCurrentPosition()
-                / 2.0);
-    }
-
-    public void resetBottomMotorCounts() {
-        doToAllArmMotors((wheel) -> wheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER));
-        doToAllArmMotors((wheel) -> wheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER));
-    }
 
     //------------------------------------------------------------------------------------------------
     // Drone Launcher
     //------------------------------------------------------------------------------------------------
-    public final Servo droneBaseServo;
-    public final CRServo droneReleaseServo;
+    public final ServoImplEx droneLauncherBase;
+    public final ServoImplEx droneLauncherHook;
+
+
+    //------------------------------------------------------------------------------------------------
+    // Lift
+    //------------------------------------------------------------------------------------------------
+    public final DcMotorImplEx liftMotor;
 
 
     //------------------------------------------------------------------------------------------------
     // Sensors
     //------------------------------------------------------------------------------------------------
+    public final VoltageSensor voltageSensor;
     public final IMU imu;
 
     /**
@@ -109,52 +79,63 @@ public class HardwareManager {
         return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
     }
 
+
     public HardwareManager(HardwareMap hardwareMap) {
         // Wheels
-        frontLeftWheel = hardwareMap.dcMotor.get("FrontLeftM");
-        frontRightWheel = hardwareMap.dcMotor.get("FrontRightM");
-        backLeftWheel = hardwareMap.dcMotor.get("BackLeftM");
-        backRightWheel = hardwareMap.dcMotor.get("BackRightM");
+        wheels = new DcMotorImplEx[] {
+                hardwareMap.get(DcMotorImplEx.class, "FrontLeftM"),
+                hardwareMap.get(DcMotorImplEx.class, "FrontRightM"),
+                hardwareMap.get(DcMotorImplEx.class, "BackLeftM"),
+                hardwareMap.get(DcMotorImplEx.class, "BackRightM")
+        };
 
-        frontLeftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRightWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeftWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        getFrontLeftWheel().setDirection(DcMotorSimple.Direction.REVERSE);
+        getFrontRightWheel().setDirection(DcMotorSimple.Direction.FORWARD);
+        getBackLeftWheel().setDirection(DcMotorSimple.Direction.REVERSE);
+        getBackRightWheel().setDirection(DcMotorSimple.Direction.FORWARD);
 
-        doToAllWheels((wheel) -> wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
+        doForAllWheels(wheel ->
+                wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
 
         // Arm
-        topLeftArmServo = hardwareMap.crservo.get("TopLeftS");
-        topRightArmServo = hardwareMap.crservo.get("TopRightS");
-        bottomLeftArmMotor = hardwareMap.dcMotor.get("LeftArmM");
-        bottomRightArmMotor = hardwareMap.dcMotor.get("RightArmM");
-        clawServo = hardwareMap.crservo.get("ClawS");
+        clawServo = hardwareMap.get(CRServoImplEx.class, "ClawS");
+        topArmServo = hardwareMap.get(CRServoImplEx.class, "TopArmS");
+        bottomArmMotor = hardwareMap.get(DcMotorImplEx.class, "BottomArmM");
 
-        topLeftArmServo.setDirection(CRServo.Direction.FORWARD);
-        topLeftArmServo.setDirection(CRServo.Direction.REVERSE);
-        bottomLeftArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        bottomRightArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        clawServo.setDirection(CRServo.Direction.FORWARD);
-
-        doToAllArmMotors((motor) -> motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
+        clawServo.setDirection(DcMotorSimple.Direction.FORWARD);
+        topArmServo.setDirection(DcMotorSimple.Direction.FORWARD);
+        bottomArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        bottomArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Drone Launcher
-        droneBaseServo = hardwareMap.servo.get("LauncherBaseS");
-        droneReleaseServo = hardwareMap.crservo.get("LauncherHookS");
+        droneLauncherBase = hardwareMap.get(ServoImplEx.class, "LauncherBaseS");
+        droneLauncherHook = hardwareMap.get(ServoImplEx.class, "LauncherHookS");
 
-        droneBaseServo.setDirection(Servo.Direction.REVERSE);
-        droneReleaseServo.setDirection(CRServo.Direction.REVERSE);
+        droneLauncherBase.setDirection(Servo.Direction.FORWARD);
+        droneLauncherHook.setDirection(Servo.Direction.REVERSE);
+
+        // Lift
+        liftMotor = hardwareMap.get(DcMotorImplEx.class, "LiftM");
+        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Sensors
+        voltageSensor = hardwareMap.voltageSensor.iterator().next();
         imu = hardwareMap.get(IMU.class, "imu");
+
         IMU.Parameters parameters = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
-                        RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
-                        RevHubOrientationOnRobot.UsbFacingDirection.DOWN
+                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                        RevHubOrientationOnRobot.UsbFacingDirection.LEFT
                 )
         );
 
         imu.initialize(parameters);
         imu.resetYaw();
+    }
+
+    public void resetDcMotorEncoder(DcMotorImpl motor) {
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 }

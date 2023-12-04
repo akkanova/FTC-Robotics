@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.human_operated;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.all_purpose.Misc;
 import org.firstinspires.ftc.teamcode.base.HumanOperated;
 
 /**
@@ -30,31 +31,24 @@ import org.firstinspires.ftc.teamcode.base.HumanOperated;
  */
 @TeleOp(name="Split Control", group = "TeleOp")
 public class SplitControl extends HumanOperated {
-    private final double JOYSTICK_TO_CLAW_MULTIPLIER = 0.5;
+    private static final double JOYSTICK_TO_CLAW_MULTIPLIER = 0.5;
 
     @Override
-    public void loop() {
-        useDefaultDroneLauncherControl();
+    public void processUserInput() {
+        useDefaultDroneLauncherControls();
         useDefaultMovementControls();
+        useDefaultLiftControls();
 
-        topArmServoP = gamepad2.left_stick_y * JOYSTICK_TO_CLAW_MULTIPLIER;
-        bottomArmServoP = gamepad2.right_stick_y * JOYSTICK_TO_CLAW_MULTIPLIER;
-
-        // If the left joy stick does not receive any left/right input, try reading
-        // from the right joystick. Allowing claw controls to be
-        // received from both left and right joysticks.
+        topArmServoPower    = Misc.easeWithCubic(gamepad2.left_stick_y)  * JOYSTICK_TO_CLAW_MULTIPLIER;
+        bottomArmMotorPower = Misc.easeWithCubic(gamepad2.right_stick_y) * JOYSTICK_TO_CLAW_MULTIPLIER;
+        clawServoPower = 0;
 
         // Claw
-        if (gamepad2.dpad_left) {
-            clawServoP = -SERVO_DELTA;
-        } else if (gamepad2.dpad_right) {
-            clawServoP = SERVO_DELTA;
-        } else {
-            clawServoP = 0;
-        }
+        if (gamepad2.dpad_right)
+            clawServoPower = ARM_SERVO_DELTA;
+        else if (gamepad2.dpad_left)
+            clawServoPower = -ARM_SERVO_DELTA;
 
-        clawServoP *= JOYSTICK_TO_CLAW_MULTIPLIER;
-
-        setHardwarePower();
+        clawServoPower *= JOYSTICK_TO_CLAW_MULTIPLIER;
     }
 }

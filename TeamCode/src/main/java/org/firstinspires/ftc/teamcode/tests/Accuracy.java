@@ -1,17 +1,14 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.base.SelfDriving;
 
-/**
- * Testing for Wrist
- */
-@Autonomous(name = "Wrist Movement Test", group = "Test")
-public class WristMovement extends SelfDriving {
+
+@Autonomous(name = "Accuracy Test", group = "Test")
+public class Accuracy extends SelfDriving {
     @Override
     protected void runAutonomous() {
-        moveWristTillSeconds(1000);
+        move(1);
     }
 }
