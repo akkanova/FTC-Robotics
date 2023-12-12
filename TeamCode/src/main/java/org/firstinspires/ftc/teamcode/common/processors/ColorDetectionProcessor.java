@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.all_purpose.processors;
+package org.firstinspires.ftc.teamcode.common.processors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,26 +13,28 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
 /**
- * Currently Work In Progress ....
+ * A processor that filters out a specific band of HSV, and returns the location of
+ * the largest blob of the filtered colour in relative of the screen.
  */
 public class ColorDetectionProcessor implements VisionProcessor {
-    // Lenient bounds for filtering white objects
-    private static final Scalar LOWER_HSV = new Scalar(0, 0, 178);
-    private static final Scalar UPPER_HSV = new Scalar(172,111,255);
+    protected final AtomicReference<Point> approxLocation;
+    protected final Scalar lowerHSV;
+    protected final Scalar upperHSV;
+
+    protected int cameraHeight;
+    protected int cameraWidth;
+
     private static final int CANVAS_PADDING_PX = 12;
+    private final Object drawSync; // For multi-threading sync..
 
-    private final AtomicReference<Point> approxLocation = new AtomicReference<>();
-    private final Object drawSync = new Object(); // Multi-threading ..
-    private int cameraHeight;
-    private int cameraWidth;
-
+    /** The arbitrary regions the object might be in. */
     public enum FoundRegion {
         NONE,
         LEFT,
@@ -40,13 +42,27 @@ public class ColorDetectionProcessor implements VisionProcessor {
         RIGHT
     }
 
+    /**
+     * Create an instance with the given lower and upper HSV
+     *
+     * @param lowerHSV   Lower range of the band of color to filter for.
+     * @param higherHSV  Upper range of the band of color to filter for.
+     * */
+    public ColorDetectionProcessor(Scalar lowerHSV, Scalar higherHSV) {
+        this.approxLocation = new AtomicReference<>(new Point(-1, -1));
+        this.upperHSV = higherHSV;
+        this.lowerHSV = lowerHSV;
+        this.drawSync = new Object();
+    }
+
+    /** Called by Vision Portal. Initialize */
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
-        this.approxLocation.set(new Point(-1, -1));
         this.cameraHeight = height;
         this.cameraWidth = width;
     }
 
+    /** Called by Vision Portal. Extract data from provided RGBA matrix */
     @Override
     public Object processFrame(Mat frame, long captureTimeNanos) {
         // Convert RGBA frame to HSV
@@ -55,7 +71,7 @@ public class ColorDetectionProcessor implements VisionProcessor {
 
         // Filter according to the lower HSV and higher HSV
         Mat masked = new Mat();
-        Core.inRange(hsvFrame, LOWER_HSV, UPPER_HSV, masked);
+        Core.inRange(hsvFrame, lowerHSV, upperHSV, masked);
 
         // Additional image cleanup
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
@@ -65,7 +81,9 @@ public class ColorDetectionProcessor implements VisionProcessor {
         // Find contours of the detected white pixels
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat(); // Not really used
-        Imgproc.findContours(masked, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(masked, contours, hierarchy,
+                Imgproc.RETR_EXTERNAL,
+                Imgproc.CHAIN_APPROX_SIMPLE);
 
         // Find the largest contour
         MatOfPoint largestContour = null;
@@ -102,6 +120,7 @@ public class ColorDetectionProcessor implements VisionProcessor {
         return false;
     }
 
+    /** Called by Vision Portal. Draw graphics on the preview stream */
     @Override
     public void onDrawFrame(
             Canvas canvas,
@@ -109,6 +128,8 @@ public class ColorDetectionProcessor implements VisionProcessor {
             float scaleBmpPxToCanvasPx, float scaleCanvasDensity,
             Object userContext
     ) {
+        // Only one thread should be drawing the graphics at a time..
+        // The FTC dashboard and Driver Hub could call this method simultaneously.
         synchronized (drawSync) {
             if (!((boolean) userContext))
                 return;
@@ -121,6 +142,7 @@ public class ColorDetectionProcessor implements VisionProcessor {
             Point location = approxLocation.get();
             float onScreenXPos = (float) (location.x - 1.0) / cameraWidth * onscreenWidth + 1;
             float onScreenYPos = (float) (location.y - 1.0) / cameraHeight * onscreenHeight + 1;
+
 
             String label = "(" + location.x + ", " + location.y + ")";
             canvas.drawText(label, onScreenXPos, onScreenYPos, paint);
@@ -136,19 +158,25 @@ public class ColorDetectionProcessor implements VisionProcessor {
             int left = (width * region.ordinal() + CANVAS_PADDING_PX);
 
             canvas.drawRect(
-                left, CANVAS_PADDING_PX,
-                left + width - CANVAS_PADDING_PX * 2,
-                onscreenHeight - CANVAS_PADDING_PX,
-                paint);
+                    left, CANVAS_PADDING_PX,
+                    left + width - CANVAS_PADDING_PX * 2,
+                    onscreenHeight - CANVAS_PADDING_PX,
+                    paint);
         }
     }
 
+    /**
+     * Get the center x and y of the largest contour and make an arbitrary
+     * decision on which region of the camera feed (LEFT, CENTER, RIGHT) it is
+     * likely located in.
+     * @return {@link FoundRegion}
+     */
     public FoundRegion getRegion() {
         Point location = approxLocation.get();
 
         if (location == null ||
-            location.x < 0   ||
-            location.y < 0)
+                location.x < 0   ||
+                location.y < 0)
             return FoundRegion.NONE;
 
         double width = cameraWidth / 3.0;
@@ -160,5 +188,12 @@ public class ColorDetectionProcessor implements VisionProcessor {
         else
             return FoundRegion.RIGHT;
     }
-}
 
+    /**
+     * @return A copy of the x and y location of the largest contour center
+     * detected from the filtered camera feed.
+     * */
+    public Point getApproxLocation() {
+        return approxLocation.get().clone();
+    }
+}
