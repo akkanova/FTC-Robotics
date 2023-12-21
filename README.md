@@ -7,3 +7,8 @@ This Github repository is a fork of `FIRST-Tech-Challenge/FtcRobotController`. C
 - Download / Clone this repository.
 - Follow the Instructions given on the Official FTC page, [Setting Up Android Studio](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html).
 - Submit a pull request.
+
+## Additional Resources
+
+- [Game Manual Zero](https://gm0.org)
+- [REV Documentation](https://docs.revrobotics.com/docs/rev-duo)
