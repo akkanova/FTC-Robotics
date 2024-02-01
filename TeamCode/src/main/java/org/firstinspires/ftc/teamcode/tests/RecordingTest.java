@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.base;
+package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
+import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import android.util.Range;
@@ -10,27 +10,17 @@ import android.util.Range;
 import org.firstinspires.ftc.teamcode.all_purpose.HardwareManager;
 import org.firstinspires.ftc.teamcode.all_purpose.Misc;
 
-/**
- * Base class for all human-operated scripts, a.k.a TeleOp.
- * Any inherited classes manipulates the given protected power
- * values of each motor and servos, and then calls `setHardwarePower`
- * which ensures that the values obeys the UPPER and LOWER limits,
- * before sending them to each hardware binding classes.
- *
- * (USER_INPUT) -> (Class extends HumanOperated) -> (Base Class HumanOperated) -> (Hardware Manager)
- *      |                   |                             |                              |
- *     \/                   |                             |                              `-> Magic Class that converts Java value to actual
- *   GamePad1 or            |                             |                                  voltage to be used by DcMotors and Servos.
- *   GamePad2               |                             |
- *                          |                             `> Ensures the desired power setting is within min and max
- *                          |                                 before sending it to the actual hardware binding class.
- *                         \/
- *                    Interprets the human control into whatever
- *                    control schema we decide. E.g Tank Control
- *                    Split Control, etc..
- */
 
-public abstract class HumanOperated extends OpMode {
+// danny's recording test
+// so basically im trying to track movements by detecting when any button is pressed. the recordArray 2D array will store two key value pairs (?)
+//
+
+public abstract class RecordingTest extends OpMode {
+
+    protected String[][] recordArray;
+
+    protected ElapsedTime timeElapsed;
+
     protected HardwareManager hardwareManager;
 
     protected double frontLeftWheelPower;
@@ -64,34 +54,39 @@ public abstract class HumanOperated extends OpMode {
     protected static final double ARM_MOTOR_DELTA = 1.0;
     protected static final double ARM_SERVO_DELTA = 1.0;
 
-    protected void useDefaultMovementControls() {
-        double strafe = Misc.easeWithCubic(gamepad1.left_stick_x);
-        double rotate = Misc.easeWithCubic(gamepad1.right_stick_x);
-        double drive  = Misc.easeWithCubic(
-                gamepad1.left_stick_y != 0
-                        ? -gamepad1.left_stick_y
-                        : -gamepad1.right_stick_y
-        );
+    public void processUserInputTest() {
 
-        double heading = Math.atan2(drive, strafe);
-        double power = Math.hypot(strafe, drive);
 
-        double sin = Math.sin(heading - Math.PI / 4);
-        double cos = Math.cos(heading - Math.PI / 4);
-        double max = Math.max(Math.abs(sin), Math.abs(cos));
 
-        frontLeftWheelPower  = power * cos / max + rotate;
-        frontRightWheelPower = power * sin / max - rotate;
-        backLeftWheelPower   = power * sin / max + rotate;
-        backRightWheelPower  = power * cos / max - rotate;
-
-        if ((power + Math.abs(rotate)) > 1) {
-            frontLeftWheelPower  /= power + rotate;
-            frontRightWheelPower /= power + rotate;
-            backLeftWheelPower   /= power + rotate;
-            backRightWheelPower  /= power + rotate;
+        if (gamepad1.dpad_right) {
+            setLeftPower(1);
+            setRightPower(-1);
+        } else if (gamepad1.dpad_left) {
+            setLeftPower(-1);
+            setRightPower(1);
+        } else if (gamepad1.dpad_up) {
+            setLeftPower(-1);
+            setRightPower(-1);
+        } else if (gamepad1.dpad_down) {
+            setLeftPower(1);
+            setRightPower(1);
+        } else {
+            setLeftPower(0);
+            setRightPower(0);
         }
+
+
     }
+
+    public void setRightPower(double power) {
+        frontRightWheelPower = power;
+        backRightWheelPower = power;
+    }
+
+    public void setLeftPower(double power) {
+        frontLeftWheelPower = power;
+        backLeftWheelPower = power;
+    }bn
 
     protected void useDefaultArmControls() {
         bottomArmMotorPower = 0;
@@ -138,10 +133,11 @@ public abstract class HumanOperated extends OpMode {
     protected final double ELBOW_MOTOR_POWER = 0.5;
     protected boolean isUp = false;
     protected void moveElbowMotors(double endPositionAngle) {
+
         /*
-        * This is a copy of the moveElbowMotors() from selfDriving with a very very
-        * experimental way of changing the direction of the motor
-        * */
+         * This is a copy of the moveElbowMotors() from selfDriving with a very very
+         * experimental way of changing the direction of the motor
+         * */
         if(endPositionAngle >= 0) {
             hardwareManager.elbowArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         } else {
@@ -157,7 +153,7 @@ public abstract class HumanOperated extends OpMode {
         hardwareManager.elbowArmMotor.setPower(ELBOW_MOTOR_POWER);
         while (hardwareManager.elbowArmMotor.getCurrentPosition() <= target_angle) {
             //idle()
-        }
+            ;        }
 
         hardwareManager.elbowArmMotor.setPower(0);
     }
@@ -208,22 +204,25 @@ public abstract class HumanOperated extends OpMode {
                 ? leftServoBusy
                 : rightServoBusy;
         if(!motorStateBusy){
-            ServoImplEx selectedServo = (isServoOne)
+            CRServoImplEx selectedServo = (isServoOne)
                     ?hardwareManager.clawServoLeft
                     :hardwareManager.clawServoRight;
 
+            switch(selectedServo.getDirection()){
+                case FORWARD:
+                    selectedServo.setDirection(DcMotorSimple.Direction.REVERSE);
+                    break;
+                default:
+                    selectedServo.setDirection(DcMotorSimple.Direction.FORWARD);
+                    break;
+            }
 
-            selectedServo.setPosition(12);
+            selectedServo.setPower(0.7);
             setServoIsBusy(isServoOne, true);
-            telemetry.addLine("OPERATION STARTED");
             sleep(CLAW_OPEN_MS);
             setServoIsBusy(isServoOne, false);
-            selectedServo.setPosition(45);
-            telemetry.addLine("FINISHED OPERATION");
+            selectedServo.setPower(0);
         }
-
-    }
-    protected void clawControlsOverride(){
 
     }
 
@@ -267,8 +266,8 @@ public abstract class HumanOperated extends OpMode {
         hardwareManager.getBackLeftWheel().setPower(WHEELS_POWER_RANGE.clamp(backLeftWheelPower));
         hardwareManager.getBackRightWheel().setPower(WHEELS_POWER_RANGE.clamp(backRightWheelPower));
 
-        //hardwareManager.clawServoRight.setPower(ARM_SERVO_POWER_RANGE.clamp(clawServoPower));
-        //hardwareManager.clawServoLeft.setPower(ARM_SERVO_POWER_RANGE.clamp(clawServoPower));
+        hardwareManager.clawServoLeft.setPower(ARM_SERVO_POWER_RANGE.clamp(clawServoPower));
+        hardwareManager.clawServoRight.setPower(ARM_SERVO_POWER_RANGE.clamp(clawServoPower));
 
         hardwareManager.liftMotor.setPower(LIFT_POWER_RANGE.clamp(liftMotorPower));
 
@@ -288,4 +287,5 @@ public abstract class HumanOperated extends OpMode {
     public void start() {
         hardwareManager.droneLauncherBase.setPosition(LAUNCHER_BASE_POSITION);
     }
+
 }

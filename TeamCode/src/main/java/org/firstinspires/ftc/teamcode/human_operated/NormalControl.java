@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.human_operated;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.base.HumanOperated;
 
 /**
@@ -18,11 +20,18 @@ import org.firstinspires.ftc.teamcode.base.HumanOperated;
  */
 @TeleOp(name = "Normal Control", group = "TeleOp")
 public class NormalControl extends HumanOperated {
+    ElapsedTime timeElapsed = new ElapsedTime();
+    boolean armControlOverride = false;
     @Override
     protected void processUserInput() {
         useDefaultDroneLauncherControls();
         useDefaultMovementControls();
         useDefaultLiftControls();
-        useDefaultArmControls();
+        useSimpleArmControls();
+        checkSpeedOfEachWheel((int)timeElapsed.seconds(), 2);
+
+        telemetry.addData("SERVO POSITION", hardwareManager.clawServoLeft.getPosition());
+        telemetry.update();
+        //useDefaultArmControls();
     }
 }

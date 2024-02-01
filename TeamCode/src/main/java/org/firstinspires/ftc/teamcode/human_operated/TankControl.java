@@ -23,14 +23,33 @@ public class TankControl extends HumanOperated {
         useDefaultLiftControls();
         useDefaultArmControls();
 
-        double leftPower   = -Misc.easeWithCubic(gamepad1.left_stick_y);
-        double leftStrafe  = Misc.easeWithCubic(gamepad1.left_stick_x);
-        double rightPower  = -Misc.easeWithCubic(gamepad1.right_stick_y);
-        double rightStrafe = Misc.easeWithCubic(gamepad1.right_stick_x);
+        if (gamepad1.dpad_right) {
+            setLeftPower(1);
+            setRightPower(-1);
+        } else if (gamepad1.dpad_left) {
+            setLeftPower(-1);
+            setRightPower(1);
+        } else if (gamepad1.dpad_up) {
+            setLeftPower(-1);
+            setRightPower(-1);
+        } else if (gamepad1.dpad_down) {
+            setLeftPower(1);
+            setRightPower(1);
+        } else {
+            setLeftPower(0);
+            setRightPower(0);
+        }
 
-        frontLeftWheelPower  = leftPower  + leftStrafe;
-        frontRightWheelPower = rightPower - leftStrafe;
-        backLeftWheelPower   = leftPower  + rightStrafe;
-        backRightWheelPower  = rightPower - rightStrafe;
+
+    }
+
+    public void setRightPower(double power) {
+        frontRightWheelPower = power;
+        backRightWheelPower = power;
+    }
+
+    public void setLeftPower(double power) {
+        frontLeftWheelPower = power;
+        backLeftWheelPower = power;
     }
 }

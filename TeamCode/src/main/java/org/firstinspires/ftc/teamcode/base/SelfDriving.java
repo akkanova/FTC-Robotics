@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.base;
 import android.util.Range;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.all_purpose.HardwareManager;
@@ -95,70 +96,33 @@ public abstract class SelfDriving extends LinearOpMode {
     //------------------------------------------------------------------------------------------------
     // Arm Controls
     //------------------------------------------------------------------------------------------------
-    protected final double SECONDS_FOR_ONE_DEGREE_OF_MOTION = 0.0 / 180; // (How long it takes for the wrist to turn a 180)/(180 degrees)
-    protected final double COUNTS_PER_SERVO_ANGLE = 1;
+    protected final double COUNTS_PER_ELBOW_REVOLUTION = 1440;
+    protected final double COUNTS_PER_ANGLE = COUNTS_PER_ELBOW_REVOLUTION / 360.0; // DEGREES
+    protected final double ELBOW_MOTOR_POWER = 0.5;
 
-    protected final double COUNTS_PER_ANGLE = COUNTS_PER_REVOLUTION / 360.0; // DEGREES
-    protected final double HEIGHT_OF_ARMPIT_JOINT_FROM_GROUND = 1; // M
-
-    protected final double WRIST_GEAR_RATIO = 1;
-    protected final double ARMPIT_GEAR_RATIO = 1;
-    protected final double ARM_MOVEMENT_POWER = 0.5;
-
-    //The Arm, if possible by default, would be arranged in a rectangular shape
-        /*
-              [+] ---------- [+]
-              |               |
-              |               |
-              |      <-range- N -range->
-          =======
-
-          [+]: joints
-          N: claw
-
-          -wrist joint is at a 0 degree position
-          -range is the distance or point that the claw points at
-          -an angle value is r  eturned and added to the wrist joints 0 angle
-        */
-
-
-    protected void moveWristServos(double endPositionAngle) {
+    protected void moveElbowMotors(double endPositionAngle) {
         if (!opModeIsActive())
             return;
 
-        double requiredTimeMS = (SECONDS_FOR_ONE_DEGREE_OF_MOTION) * endPositionAngle * WRIST_GEAR_RATIO * 1000;
-        hardwareManager.topArmServo.setPower(ARM_MOVEMENT_POWER);
+        if(endPositionAngle >= 0) {
+            hardwareManager.elbowArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        } else {
+            hardwareManager.elbowArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        }
 
-        ElapsedTime elapsedTime = new ElapsedTime();
-        while (opModeIsActive() && elapsedTime.milliseconds() < requiredTimeMS) {
+        double total_counts = COUNTS_PER_ANGLE * endPositionAngle; // Angle of movement desired
+        double motor_position = hardwareManager.elbowArmMotor.getCurrentPosition(); // Elbow's current position
+        double target_angle = (endPositionAngle >= 0)
+                ? (motor_position + total_counts)
+                : (motor_position - total_counts); // The desired end position of the motors angle
+
+        hardwareManager.elbowArmMotor.setPower(ELBOW_MOTOR_POWER);
+
+        while (opModeIsActive() && hardwareManager.elbowArmMotor.getCurrentPosition() < target_angle) {
             idle();
         }
 
-        hardwareManager.topArmServo.setPower(0);
-    }
-
-    protected void moveArmpitServos(int endPositionAngle){
-        if (!opModeIsActive())
-            return;
-
-        hardwareManager.resetDcMotorEncoder(hardwareManager.bottomArmMotor);
-        hardwareManager.bottomArmMotor.setPower(ARM_MOVEMENT_POWER);
-
-        double totalCounts = COUNTS_PER_ANGLE * endPositionAngle * ARMPIT_GEAR_RATIO;
-        while (opModeIsActive() && hardwareManager.bottomArmMotor.getCurrentPosition() <= totalCounts) {
-            idle();
-        }
-
-        hardwareManager.bottomArmMotor.setPower(0);
-    }
-
-    protected void changeWristPosByRange(double range){
-        if (!opModeIsActive())
-            return;
-
-        double angleAtRange = Math.atan(range / HEIGHT_OF_ARMPIT_JOINT_FROM_GROUND);
-        double angleToPosition = angleAtRange * COUNTS_PER_SERVO_ANGLE;
-        moveWristServos(angleToPosition);
+        hardwareManager.elbowArmMotor.setPower(0);
     }
 
     protected void moveWristTillSeconds(double ms) {
@@ -166,23 +130,21 @@ public abstract class SelfDriving extends LinearOpMode {
             return;
 
         ElapsedTime elapsedTime = new ElapsedTime();
-        double requiredTimeMS = ms * WRIST_GEAR_RATIO;
-        hardwareManager.topArmServo.setPower(ARM_MOVEMENT_POWER);
-
-        while(opModeIsActive() && elapsedTime.milliseconds() < requiredTimeMS) {
+        hardwareManager.elbowArmMotor.setPower(ELBOW_MOTOR_POWER);
+        while(opModeIsActive() && elapsedTime.milliseconds() <= ms){
             idle();
         }
-
-        hardwareManager.topArmServo.setPower(0);
+        hardwareManager.elbowArmMotor.setPower(0);
     }
+
 
     protected void openClaw() {
         if (!opModeIsActive())
             return;
 
-        hardwareManager.clawServo.setPower(0.7);
-        sleep(CLAW_OPEN_MS);
-        hardwareManager.clawServo.setPower(0);
+        //hardwareManager.clawServo.setPower(0.7);
+        //sleep(CLAW_OPEN_MS);
+        //hardwareManager.clawServo.setPower(0);
     }
 
     //------------------------------------------------------------------------------------------------

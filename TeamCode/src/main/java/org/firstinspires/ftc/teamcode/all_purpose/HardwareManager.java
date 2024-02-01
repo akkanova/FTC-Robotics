@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.*;
 import org.firstinspires.ftc.robotcore.external.Consumer;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
+import org.firstinspires.ftc.teamcode.all_purpose.DcMotorWrapper;
+
 /**
  * A specific class designed for setting up all of the robot's
  * hardware binding classes, and presiding over groups of them to
@@ -15,7 +17,7 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     // Wheels
     //------------------------------------------------------------------------------------------------
-    public final DcMotorImpl[] wheels;
+    public final DcMotorWrapper[] wheels;
 
     public DcMotorImpl getFrontLeftWheel()  { return wheels[0]; }
     public DcMotorImpl getFrontRightWheel() { return wheels[1]; }
@@ -42,9 +44,9 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     // Arm
     //------------------------------------------------------------------------------------------------
-    public final CRServoImplEx clawServo;
-    public final CRServoImplEx topArmServo;
-    public final DcMotorImpl bottomArmMotor;
+    public final ServoImplEx clawServoLeft;
+    public final ServoImplEx clawServoRight;
+    public final DcMotorImpl elbowArmMotor;
 
 
     //------------------------------------------------------------------------------------------------
@@ -82,11 +84,11 @@ public class HardwareManager {
 
     public HardwareManager(HardwareMap hardwareMap) {
         // Wheels
-        wheels = new DcMotorImplEx[] {
-                hardwareMap.get(DcMotorImplEx.class, "FrontLeftM"),
-                hardwareMap.get(DcMotorImplEx.class, "FrontRightM"),
-                hardwareMap.get(DcMotorImplEx.class, "BackLeftM"),
-                hardwareMap.get(DcMotorImplEx.class, "BackRightM")
+        wheels = new DcMotorWrapper[] {
+                hardwareMap.get(DcMotorWrapper.class, "FrontLeftM"),
+                hardwareMap.get(DcMotorWrapper.class, "FrontRightM"),
+                hardwareMap.get(DcMotorWrapper.class, "BackLeftM"),
+                hardwareMap.get(DcMotorWrapper.class, "BackRightM")
         };
 
         getFrontLeftWheel().setDirection(DcMotorSimple.Direction.REVERSE);
@@ -98,14 +100,12 @@ public class HardwareManager {
                 wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
 
         // Arm
-        clawServo = hardwareMap.get(CRServoImplEx.class, "ClawS");
-        topArmServo = hardwareMap.get(CRServoImplEx.class, "TopArmS");
-        bottomArmMotor = hardwareMap.get(DcMotorImplEx.class, "BottomArmM");
+        clawServoLeft = hardwareMap.get(ServoImplEx.class, "ClawLeftS");
+        clawServoRight = hardwareMap.get(ServoImplEx.class, "ClawRightS");
+        elbowArmMotor = hardwareMap.get(DcMotorImplEx.class, "ElbowArmM");
 
-        clawServo.setDirection(DcMotorSimple.Direction.FORWARD);
-        topArmServo.setDirection(DcMotorSimple.Direction.FORWARD);
-        bottomArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        bottomArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        elbowArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        elbowArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Drone Launcher
         droneLauncherBase = hardwareMap.get(ServoImplEx.class, "LauncherBaseS");

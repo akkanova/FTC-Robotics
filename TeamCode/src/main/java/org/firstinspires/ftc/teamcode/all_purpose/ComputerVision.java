@@ -5,7 +5,6 @@ import android.util.Size;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.all_purpose.processors.FtcDashboardProcessor;
 import org.firstinspires.ftc.teamcode.all_purpose.processors.ColorDetectionProcessor;
 import org.firstinspires.ftc.teamcode.all_purpose.processors.TestProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -70,10 +69,10 @@ public class ComputerVision {
      */
     public void initialize(int processors, boolean enablePreview) {
         VisionPortal.Builder visionBuilder = new VisionPortal.Builder()
-            .setCameraResolution(new Size(640, 480)) // Pre-Calibrated Resolution
-            .setAutoStopLiveView(!enablePreview)
-            .enableLiveView(enablePreview)
-            .setCamera(webcamName);
+                .setCameraResolution(new Size(640, 480)) // Pre-Calibrated Resolution
+                .setAutoStopLiveView(!enablePreview)
+                .enableLiveView(enablePreview)
+                .setCamera(webcamName);
 
         if ((processors & Processors.TEST) == Processors.TEST) {
             visionBuilder.addProcessor(new TestProcessor());
@@ -81,17 +80,23 @@ public class ComputerVision {
 
         if ((processors & Processors.APRIL_TAG) == Processors.APRIL_TAG) {
             aprilTagProcessor = new AprilTagProcessor.Builder()
-                .setDrawCubeProjection(enablePreview)
-                .setDrawTagOutline(enablePreview)
-                .setDrawTagID(enablePreview)
-                .setDrawAxes(enablePreview)
-                .build();
+                    .setDrawCubeProjection(enablePreview)
+                    .setDrawTagOutline(enablePreview)
+                    .setDrawTagID(enablePreview)
+                    .setDrawAxes(enablePreview)
+                    .build();
             visionBuilder.addProcessor(aprilTagProcessor);
         }
 
         if ((processors & Processors.TENSORFLOW_PIXEL_MODEL) == Processors.TENSORFLOW_PIXEL_MODEL) {
             tfodProcessor = new TfodProcessor.Builder()
-                    // Setup tfod asset file
+                    .setModelFileName("/sdcard/FIRST/tflitemodels/model.tflite")
+                    .setIsModelQuantized(true)
+                    .setModelAspectRatio(4 / 3)
+                    .setModelLabels(new String[] {
+                            "blue-left", "blue-middle", "blue-right",
+                            "red-left",  "red-middle",  "red-right"
+                    })
                     .build();
             visionBuilder.addProcessor(tfodProcessor);
         }
@@ -101,9 +106,6 @@ public class ComputerVision {
             visionBuilder.addProcessor(colorDetectionProcessor);
         }
 
-        if (enablePreview) {
-            visionBuilder.addProcessor(FtcDashboardProcessor.create());
-        }
 
         visionPortal = visionBuilder.build();
     }

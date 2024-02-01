@@ -12,6 +12,6 @@ import org.firstinspires.ftc.teamcode.base.SelfDriving;
 public class WristMovement extends SelfDriving {
     @Override
     protected void runAutonomous() {
-        moveWristTillSeconds(1000);
+        moveElbowMotors(45);
     }
 }
