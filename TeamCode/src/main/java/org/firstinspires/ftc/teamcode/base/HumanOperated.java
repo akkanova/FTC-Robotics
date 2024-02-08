@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.base;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -133,9 +134,10 @@ public abstract class HumanOperated extends OpMode {
     //------------------------------------------------------------------------------------------------
     // nEw ArM cONtrOls (experimental)
     //------------------------------------------------------------------------------------------------
-    protected final double COUNTS_PER_ELBOW_REVOLUTION = 1440;
+    protected final double COUNTS_PER_ELBOW_REVOLUTION = 2880;
     protected final double COUNTS_PER_ANGLE = COUNTS_PER_ELBOW_REVOLUTION / 360.0; // DEGREES
     protected final double ELBOW_MOTOR_POWER = 0.5;
+    protected final double WRIST_SERVO_POWER = 0.5;
     protected boolean isUp = false;
     protected void moveElbowMotors(double endPositionAngle) {
         /*
@@ -164,68 +166,47 @@ public abstract class HumanOperated extends OpMode {
     protected void useSimpleArmControls(){
         if (!hardwareManager.elbowArmMotor.isBusy()) {
             if(gamepad1.x){
-                telemetry.update();
                 if(!isUp){
-                    moveElbowMotors(-45);
-                    isUp = false;
+                    moveElbowMotors(-90);
+                    isUp = true;
                     // if x is pressed then arm moves down by 45 degrees
                 }else{
-                    moveElbowMotors(45);
-                    isUp = true;
+                    moveElbowMotors(90);
+                    isUp = false;
                     // if y is pressed then arm moves up by 45 degrees
                 }
             }
         }
+        telemetry.addData("IS UP: ", isUp);
+        telemetry.update();
 
+        //--- Claw controls ---
         if(gamepad1.a){
             moveClawServos(true);
-        } else if(gamepad1.b){
-            moveClawServos(false);
+        } else {
+            hardwareManager.clawServoLeft.setPosition(0);
         }
-        /*
-         * this is still a big work in progress
-         * This code works!!
-         */
-    }
-    protected void armControlsOverride(){
-
+        if(gamepad1.b){
+            moveClawServos(false);
+        } else {
+            hardwareManager.clawServoRight.setPosition(0);
+        }
     }
 
     //---- Wrist Controls ----
-    protected boolean rightServoBusy = false;
-    protected boolean leftServoBusy = false;
-    protected int CLAW_OPEN_MS = 0;
 
-    protected void setServoIsBusy(boolean isServoOne, boolean isBusy){
-        if(isServoOne){
-            leftServoBusy = isBusy;
+    protected void moveClawServos(boolean isServoLeft){
+        if(isServoLeft){
+            hardwareManager.clawServoLeft.setPosition(0.5);
         } else {
-            rightServoBusy = isBusy;
+            hardwareManager.clawServoRight.setPosition(0.5);
         }
     }
-    protected void moveClawServos (boolean isServoOne){
-        boolean motorStateBusy = (isServoOne)
-                ? leftServoBusy
-                : rightServoBusy;
-        if(!motorStateBusy){
-            ServoImplEx selectedServo = (isServoOne)
-                    ?hardwareManager.clawServoLeft
-                    :hardwareManager.clawServoRight;
 
-
-            selectedServo.setPosition(12);
-            setServoIsBusy(isServoOne, true);
-            telemetry.addLine("OPERATION STARTED");
-            sleep(CLAW_OPEN_MS);
-            setServoIsBusy(isServoOne, false);
-            selectedServo.setPosition(45);
-            telemetry.addLine("FINISHED OPERATION");
-        }
+    protected void wristRotation(){
 
     }
-    protected void clawControlsOverride(){
 
-    }
 
     //------------------------------------------------------------------------------------------------
     // Debug
@@ -233,17 +214,8 @@ public abstract class HumanOperated extends OpMode {
 
     protected void checkSpeedOfEachWheel(int currentTime, int changeInSeconds){
         if(currentTime % changeInSeconds == 0){
-            double FrontLeftSpeed = hardwareManager.wheels[0].getSpeed();
-            double FrontRightSpeed = hardwareManager.wheels[1].getSpeed();
-            double BackLeftSpeed = hardwareManager.wheels[2].getSpeed();
-            double BackRightSpeed = hardwareManager.wheels[3].getSpeed();
-
-            telemetry.addData("Front Left Speed (tks/sec): ", FrontLeftSpeed);
-            telemetry.addData("Front Right Speed (tks/sec): ", FrontRightSpeed);
-            telemetry.addData("Back Left Speed (tks/sec): ", BackLeftSpeed);
-            telemetry.addData("Back Right Speed (tks/sec): ", BackRightSpeed);
+            //Re-add check speed functionality
         }
-
     }
 
     public void sleep(int milis){
@@ -267,16 +239,13 @@ public abstract class HumanOperated extends OpMode {
         hardwareManager.getBackLeftWheel().setPower(WHEELS_POWER_RANGE.clamp(backLeftWheelPower));
         hardwareManager.getBackRightWheel().setPower(WHEELS_POWER_RANGE.clamp(backRightWheelPower));
 
-        //hardwareManager.clawServoRight.setPower(ARM_SERVO_POWER_RANGE.clamp(clawServoPower));
-        //hardwareManager.clawServoLeft.setPower(ARM_SERVO_POWER_RANGE.clamp(clawServoPower));
-
         hardwareManager.liftMotor.setPower(LIFT_POWER_RANGE.clamp(liftMotorPower));
 
-        hardwareManager.droneLauncherBase.setPosition(0);
-        hardwareManager.droneLauncherHook.setPosition(0);
+        //hardwareManager.droneLauncherBase.setPosition(0);
+        //hardwareManager.droneLauncherHook.setPosition(0);
 
-        if (unhook)
-            hardwareManager.droneLauncherHook.setPosition(1);
+        //if (unhook)
+            //hardwareManager.droneLauncherHook.setPosition(1);
     }
 
     @Override
@@ -286,6 +255,8 @@ public abstract class HumanOperated extends OpMode {
 
     @Override
     public void start() {
-        hardwareManager.droneLauncherBase.setPosition(LAUNCHER_BASE_POSITION);
+        //hardwareManager.droneLauncherBase.setPosition(LAUNCHER_BASE_POSITION);
+        hardwareManager.clawServoLeft.setPosition(0);
+        hardwareManager.clawServoRight.setPosition(0);
     }
 }

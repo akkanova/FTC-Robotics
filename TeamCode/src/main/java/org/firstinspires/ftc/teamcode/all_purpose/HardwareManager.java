@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.*;
 import org.firstinspires.ftc.robotcore.external.Consumer;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-import org.firstinspires.ftc.teamcode.all_purpose.DcMotorWrapper;
-
+//import org.firstinspires.ftc.teamcode.all_purpose.DcMotorImplEx;
+//
 /**
  * A specific class designed for setting up all of the robot's
  * hardware binding classes, and presiding over groups of them to
@@ -17,12 +17,12 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     // Wheels
     //------------------------------------------------------------------------------------------------
-    public final DcMotorWrapper[] wheels;
+    public final DcMotorImplEx[] wheels;
 
-    public DcMotorImpl getFrontLeftWheel()  { return wheels[0]; }
-    public DcMotorImpl getFrontRightWheel() { return wheels[1]; }
-    public DcMotorImpl getBackLeftWheel()   { return wheels[2]; }
-    public DcMotorImpl getBackRightWheel()  { return wheels[3]; }
+    public DcMotorImplEx getFrontLeftWheel()  { return wheels[0]; }
+    public DcMotorImplEx getFrontRightWheel() { return wheels[1]; }
+    public DcMotorImplEx getBackLeftWheel()   { return wheels[2]; }
+    public DcMotorImplEx getBackRightWheel()  { return wheels[3]; }
 
     public void doForAllWheels(Consumer<DcMotorImpl> callback) {
         for (DcMotorImpl wheel : wheels)
@@ -44,16 +44,16 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     // Arm
     //------------------------------------------------------------------------------------------------
-    public final ServoImplEx clawServoLeft;
-    public final ServoImplEx clawServoRight;
+    public final Servo clawServoLeft;
+    public final Servo clawServoRight;
     public final DcMotorImpl elbowArmMotor;
 
 
     //------------------------------------------------------------------------------------------------
     // Drone Launcher
     //------------------------------------------------------------------------------------------------
-    public final ServoImplEx droneLauncherBase;
-    public final ServoImplEx droneLauncherHook;
+    //public final ServoImplEx droneLauncherBase;
+    //public final ServoImplEx droneLauncherHook;
 
 
     //------------------------------------------------------------------------------------------------
@@ -84,11 +84,11 @@ public class HardwareManager {
 
     public HardwareManager(HardwareMap hardwareMap) {
         // Wheels
-        wheels = new DcMotorWrapper[] {
-                hardwareMap.get(DcMotorWrapper.class, "FrontLeftM"),
-                hardwareMap.get(DcMotorWrapper.class, "FrontRightM"),
-                hardwareMap.get(DcMotorWrapper.class, "BackLeftM"),
-                hardwareMap.get(DcMotorWrapper.class, "BackRightM")
+        wheels = new DcMotorImplEx[] {
+                hardwareMap.get(DcMotorImplEx.class, "FrontLeftM"),
+                hardwareMap.get(DcMotorImplEx.class, "FrontRightM"),
+                hardwareMap.get(DcMotorImplEx.class, "BackLeftM"),
+                hardwareMap.get(DcMotorImplEx.class, "BackRightM")
         };
 
         getFrontLeftWheel().setDirection(DcMotorSimple.Direction.REVERSE);
@@ -100,19 +100,22 @@ public class HardwareManager {
                 wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
 
         // Arm
-        clawServoLeft = hardwareMap.get(ServoImplEx.class, "ClawLeftS");
-        clawServoRight = hardwareMap.get(ServoImplEx.class, "ClawRightS");
+        clawServoLeft = hardwareMap.get(Servo.class, "ClawLeftS");
+        clawServoRight = hardwareMap.get(Servo.class, "ClawRightS");
         elbowArmMotor = hardwareMap.get(DcMotorImplEx.class, "ElbowArmM");
+
+        clawServoLeft.setDirection(Servo.Direction.REVERSE);
+        clawServoRight.setDirection(Servo.Direction.FORWARD);
 
         elbowArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         elbowArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Drone Launcher
-        droneLauncherBase = hardwareMap.get(ServoImplEx.class, "LauncherBaseS");
-        droneLauncherHook = hardwareMap.get(ServoImplEx.class, "LauncherHookS");
+        //droneLauncherBase = hardwareMap.get(ServoImplEx.class, "LauncherBaseS");
+        //droneLauncherHook = hardwareMap.get(ServoImplEx.class, "LauncherHookS");
 
-        droneLauncherBase.setDirection(Servo.Direction.FORWARD);
-        droneLauncherHook.setDirection(Servo.Direction.REVERSE);
+        //droneLauncherBase.setDirection(Servo.Direction.FORWARD);
+        //droneLauncherHook.setDirection(Servo.Direction.REVERSE);
 
         // Lift
         liftMotor = hardwareMap.get(DcMotorImplEx.class, "LiftM");

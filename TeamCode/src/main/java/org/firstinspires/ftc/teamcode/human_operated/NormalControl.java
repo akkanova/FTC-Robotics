@@ -24,14 +24,11 @@ public class NormalControl extends HumanOperated {
     boolean armControlOverride = false;
     @Override
     protected void processUserInput() {
-        useDefaultDroneLauncherControls();
-        useDefaultMovementControls();
-        useDefaultLiftControls();
+        //useDefaultDroneLauncherControls();
+        //useDefaultMovementControls();
+        //useDefaultLiftControls();
         useSimpleArmControls();
-        checkSpeedOfEachWheel((int)timeElapsed.seconds(), 2);
-
-        telemetry.addData("SERVO POSITION", hardwareManager.clawServoLeft.getPosition());
-        telemetry.update();
+        //checkSpeedOfEachWheel((int)timeElapsed.seconds(), 2);
         //useDefaultArmControls();
     }
 }
