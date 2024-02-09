@@ -12,12 +12,12 @@ all_purpose
 common
  └── Somewhat universal code. Potentially useful in many applications,
      but designed with the codebase more in mind.
-     
-human_operated
- └── TeleOp Human Control Scripts
- 
-self_driving
+      
+independent
  └── Also known as Autonomous Scripts
+ 
+operated
+ └── TeleOp Human Control Scripts
  
 tests
  └── Hardware and Software Debug Code

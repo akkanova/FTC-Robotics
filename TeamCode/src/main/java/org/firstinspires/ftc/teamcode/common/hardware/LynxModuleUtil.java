@@ -12,17 +12,15 @@ import java.util.Map;
  * Collection of utilities for interacting with Lynx modules.<br>
  * Lynx Module = a Control Hub or an Expansion Hub..<br>
 
- * Excerpt Copied from:
+ * Class copied from:
  *  <a href="https://github.com/acmerobotics/road-runner-quickstart/blob/quickstart1/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/util/LynxModuleUtil.java">
- *      Road Runner Quickstart Lynx Module
+ *      Road Runner Quickstart - Lynx Module
  *  </a>
  */
 public class LynxModuleUtil {
     private static final LynxFirmwareVersion MIN_VERSION = new LynxFirmwareVersion(1, 8, 2);
 
-    /**
-     * Parsed representation of a Lynx module firmware version.
-     */
+    /** Parsed representation of a Lynx module firmware version. */
     public static class LynxFirmwareVersion implements Comparable<LynxFirmwareVersion> {
         public final int major;
         public final int minor;
