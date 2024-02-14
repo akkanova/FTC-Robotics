@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.common;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,6 +15,7 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 
 import org.firstinspires.ftc.teamcode.common.hardware.LynxModuleUtil;
 import org.firstinspires.ftc.teamcode.common.hardware.SimpleMecanumDrive;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -42,113 +42,6 @@ public class HardwareManager {
     // Drive Base
     //-----------------------------------------------------------------------------------
 
-    /**
-     * Configured using :<br>
-     * <a href="https://learnroadrunner.com/drive-constants.html#drive-constants">
-     *     "Learn Road Runner" Website - Drive Constants Automatic Tuner
-     * </a>
-     * and
-     * <a href="http://192.168.43.1:8080/dash">
-     *     Our Control Hub's FTC Dashboard
-     * </a>
-     */
-    @Config
-    public static class DriveBaseConstants {
-        //-------------------------------------------------------------------------------
-        // Physical Constants
-        //-------------------------------------------------------------------------------
-
-        /** Specifications for a TETRIX TorqueNADO 40:1 */
-        public static final float TICKS_PER_REVOLUTION = 960;
-        /** Specifications for a TETRIX TorqueNADO 40:1 */
-        public static final float MAX_RPM = 150;
-        /** Not including the Motor's gearbox (output / input) */
-        public static final float GEAR_RATIO = 1;
-        /** Studica Mecanum 100mm Wheel (inches) */
-        public static final double WHEEL_RADIUS = 1.968504;
-        /** Distance between the left and right wheel centers (inches) */
-        public static final double TRACK_WIDTH = 15.5;
-        /** Distance between two wheel centers of the same side (inches) */
-        public static final double TRACK_BASE = 11;
-
-        //-------------------------------------------------------------------------------
-        // Calculated Constants
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Due to IRL factors you'd technically be able to achieve ~ 80 to 90% of your
-         * theoretically speed (inches / second)..
-         * */
-        public static double MAX_VELOCITY = rpmToInchesPerSecond(MAX_RPM) * 0.85;
-        /** (inches / second ^ 2) @todo refine later.. */
-        public static double MAX_ACCELERATION = MAX_VELOCITY;
-        /** (radians / second) */
-        public static double MAX_ANGULAR_VELOCITY = MAX_VELOCITY / TRACK_WIDTH;
-        /** (radians / second ^ 2) */
-        public static double MAX_ANGULAR_ACCELERATION = MAX_ACCELERATION / TRACK_WIDTH;
-
-        /**
-         * @return velocity (inches / second) converted from the provided RPM of a
-         * motor of our drive base.
-         * */
-        public static double rpmToInchesPerSecond(double rpm) {
-            return rpm * GEAR_RATIO * 2 * Math.PI * WHEEL_RADIUS / 60.0;
-        }
-
-        /**
-         * @return distance traveled (inches) from the provided encoder "ticks" of a
-         * motor of our drive base.
-         * */
-        public static double encoderTicksToInches(double ticks) {
-            return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REVOLUTION;
-        }
-
-        //-------------------------------------------------------------------------------
-        // Wheel Motors Velocity PIDF
-        //-------------------------------------------------------------------------------
-
-        /** The f value in Motor Velocity PIDF Coefficients */
-        private static final double f = 32767 / (MAX_RPM / 60 * TICKS_PER_REVOLUTION);
-        /**
-         * The Control Hub takes each motors' encoder values as Input and decides on the
-         * appropriate voltage to give them through some "arbitrary calculations" that utilizes
-         * these PID Coefficients to maintain a specified target velocity.<br>
-         * More Info
-         * <a href="https://gm0.org/en/latest/docs/software/concepts/control-loops.html">
-         *     Game Manual 0 - PID Controllers
-         * </a> and
-         * <a href="https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.h2mitzlvr4py">
-         *      Motor PIDF Tuning Guide Google Doc
-         * </a>.<br>
-
-         * @todo Actually tune these coefficients using DriveVelocityPIDTuner TeleOp.
-         */
-        public static final PIDFCoefficients MOTOR_VELOCITY_PIDF =
-                new PIDFCoefficients(f * 0.1, f * 0.01, 0, f);
-
-        //-------------------------------------------------------------------------------
-        // Feed Forward PID Parameters
-        //-------------------------------------------------------------------------------
-        // These are the feedforward parameters used to model the drive motor behavior. If you are using
-        // the built-in velocity PID, *these values are fine as is*. However, if you do not have drive
-        // motor encoders or have elected not to use them for velocity control, these values should be
-        // empirically tuned.                      -- Road Runner
-
-        public static double kV = 1.0 / rpmToInchesPerSecond(MAX_RPM);
-        public static double kA = 0;
-        public static double kStatic = 0;
-
-        //-------------------------------------------------------------------------------
-        // Compensations
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Factor that multiplies strafe velocity to compensate for slip; increase it to boost the
-         * distance traveled in the strafe direction
-         */
-        public static double LATERAL_MULTIPLIER = 1;
-    }
-
     public final SimpleMecanumDrive driveBase;
 
     public final DcMotorEx[] wheelMotors;
@@ -158,7 +51,7 @@ public class HardwareManager {
     public final DcMotorEx getBackRightWheelMotor()  { return wheelMotors[3]; } // TETRIX TorqueNADO 40:1
 
     /** Run consumer callback for all elements of the wheels array */
-    public void doForAllWheels(Consumer<DcMotorEx> consumer) {
+    public void doForAllWheels(@NotNull Consumer<DcMotorEx> consumer) {
         for (DcMotorEx wheel : wheelMotors) {
             consumer.accept(wheel);
         }
@@ -185,7 +78,7 @@ public class HardwareManager {
 
     public final DcMotorEx liftMotor; // TETRIX TorqueNADO 40:1
 
-    public HardwareManager(HardwareMap hardwareMap) {
+    public HardwareManager(@NotNull HardwareMap hardwareMap) {
         // Lynx Modules (a.k.a Control Hub or Expansion Hub) ----------------------------
         // Ensure that all the lynx modules have the minimum firmware version
         // required by Road Runner.
@@ -237,15 +130,15 @@ public class HardwareManager {
         // DEAD WHEELS ONLY..
         doForAllWheels((motor) -> {
             // Use the Control Hub's Built In Velocity Control PID with PID Coefficients we have
-            // fine tuned... look at the comment in `DriveConstants.MOTOR_VELOCITY_PID` for more info.
+            // fine tuned... look at the comment in `Configuration.BuiltInVelocityPID` for more info.
             motor.setPIDFCoefficients(
                     DcMotor.RunMode.RUN_USING_ENCODER,
                     new PIDFCoefficients(
-                            DriveBaseConstants.MOTOR_VELOCITY_PIDF.p,
-                            DriveBaseConstants.MOTOR_VELOCITY_PIDF.i,
-                            DriveBaseConstants.MOTOR_VELOCITY_PIDF.d,
+                            Configuration.BuiltInVelocityPID.p,
+                            Configuration.BuiltInVelocityPID.i,
+                            Configuration.BuiltInVelocityPID.d,
                             // Scale based on current battery percentage ..
-                            DriveBaseConstants.MOTOR_VELOCITY_PIDF.f * 12 / batteryVoltageSensor.getVoltage()
+                            Configuration.BuiltInVelocityPID.f * 12 / batteryVoltageSensor.getVoltage()
                     )
             );
         });

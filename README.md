@@ -5,10 +5,12 @@ This Github repository is a fork of `FIRST-Tech-Challenge/FtcRobotController`. C
 ## Contributing
 
 - Download / Clone this repository.
-- Follow the Instructions given on the Official FTC page, [Setting Up Android Studio](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html).
+- Follow this setup instructions, for [Android Studio](https://gm0.org/en/latest/docs/software/getting-started/using-android-studio.html).
 - Submit a pull request.
 
 ## Additional Resources
 
 - [Game Manual Zero](https://gm0.org)
-- [REV Documentation](https://docs.revrobotics.com/docs/rev-duo)
+- [AcmeRobotics/road-runner-quickstart (quickstart1)](https://github.com/acmerobotics/road-runner-quickstart/tree/quickstart1)
+- [Learn Road Runner](https://learnroadrunner.com/)
+- [FTC lib](https://ftclib.org)

@@ -55,14 +55,23 @@ public class ComputerVision<T extends VisionProcessor> {
                 enabledPreview);
     }
 
+    /** Pauses the vision portal stream asynchronously. Will take a few seconds to finish this. */
     public void pause() {
         visionPortal.stopStreaming();
     }
 
+    /**
+     * Resumes the vision portal stream asynchronously if it were paused.
+     * Will take a few seconds to finish this.
+     * */
     public void resume() {
         visionPortal.resumeStreaming();
     }
 
+    /**
+     * Only call if no longer using this instance of ComputerVision. Destroys and releases
+     * resources consumed by the {@link VisionPortal} and the selected {@link VisionProcessor}.
+     * */
     public void destroy() {
         visionPortal.close();
     }

@@ -1,20 +1,15 @@
 package org.firstinspires.ftc.teamcode.common.hardware;
 
-import static org.firstinspires.ftc.teamcode.common.HardwareManager.DriveBaseConstants.LATERAL_MULTIPLIER;
-import static org.firstinspires.ftc.teamcode.common.HardwareManager.DriveBaseConstants.TRACK_BASE;
-import static org.firstinspires.ftc.teamcode.common.HardwareManager.DriveBaseConstants.TRACK_WIDTH;
-import static org.firstinspires.ftc.teamcode.common.HardwareManager.DriveBaseConstants.encoderTicksToInches;
-import static org.firstinspires.ftc.teamcode.common.HardwareManager.DriveBaseConstants.kA;
-import static org.firstinspires.ftc.teamcode.common.HardwareManager.DriveBaseConstants.kStatic;
-import static org.firstinspires.ftc.teamcode.common.HardwareManager.DriveBaseConstants.kV;
-
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
 import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.common.Configuration;
 import org.firstinspires.ftc.teamcode.common.HardwareManager;
 
 import java.util.ArrayList;
@@ -30,25 +25,36 @@ import java.util.List;
 public class SimpleMecanumDrive extends MecanumDrive {
     private final HardwareManager hardwareManager;
 
-    private final int[] lastEncoderPositions;
-    private final int[] lastEncoderVelocities;
+    private final ArrayList<Integer> lastEncoderPositions;
+    private final ArrayList<Integer> lastEncoderVelocities;
 
-    private TrajectoryFollower follower;
+    private final TrajectoryFollower follower;
 
     /** Initialized by our HardwareManager */
     public SimpleMecanumDrive(HardwareManager hardwareManager) {
-        super(kV, kA, kStatic, TRACK_WIDTH, TRACK_BASE, LATERAL_MULTIPLIER);
+        super(
+            Configuration.FeedForwardPID.kV,
+            Configuration.FeedForwardPID.kA,
+            Configuration.FeedForwardPID.kStatic,
+            Configuration.DriveBaseConstants.TRACK_WIDTH,
+            Configuration.DriveBaseConstants.TRACK_BASE,
+            Configuration.MecanumDriveBaseConfig.LATERAL_MULTIPLIER
+        );
+
         this.hardwareManager = hardwareManager;
-
-        // A: I don't think there's a mecanum drive with more than 4 wheels;
-        this.lastEncoderPositions = new int[hardwareManager.wheelMotors.length];
-        this.lastEncoderVelocities = new int[hardwareManager.wheelMotors.length];
-
-        this.follower = new HolonomicPIDVAFollower();
+        this.lastEncoderPositions = new ArrayList<>();
+        this.lastEncoderVelocities = new ArrayList<>();
+        this.follower = new HolonomicPIDVAFollower(
+            Configuration.MecanumDriveBaseConfig.TRANSLATIONAL_PID,
+            Configuration.MecanumDriveBaseConfig.TRANSLATIONAL_PID,
+            Configuration.MecanumDriveBaseConfig.HEADING_PID,
+            new Pose2d(0.5, 0.5, Math.toRadians(5)),
+            0.5
+        );
     }
 
     //-----------------------------------------------------------------------------------
-    // Road Runner Mecanum Drive Inheritance
+    // Road Runner MecanumDrive Inheritance
     //-----------------------------------------------------------------------------------
 
     /** @return IMU yaw in radians */
@@ -63,13 +69,13 @@ public class SimpleMecanumDrive extends MecanumDrive {
     @NonNull
     @Override
     public List<Double> getWheelPositions() {
-        int totalWheelMotors = hardwareManager.wheelMotors.length;
-        List<Double> wheelPositions = new ArrayList<>(totalWheelMotors);
+        List<Double> wheelPositions = new ArrayList<>(hardwareManager.wheelMotors.length);
+        lastEncoderPositions.clear();
 
-        for (int i = 0; i < totalWheelMotors; i++) {
-            int encoderTicks = hardwareManager.wheelMotors[i].getCurrentPosition();
-            wheelPositions.add(encoderTicksToInches(encoderTicks));
-            lastEncoderPositions[i] = encoderTicks;
+        for (DcMotorEx wheelMotor : hardwareManager.wheelMotors) {
+            int encoderTicks = wheelMotor.getCurrentPosition();
+            wheelPositions.add(Configuration.DriveBaseConstants.encoderTicksToInches(encoderTicks));
+            lastEncoderPositions.add(encoderTicks);
         }
 
         return wheelPositions;
