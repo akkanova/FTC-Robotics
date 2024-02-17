@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.teamcode.common.processors.ColorDetectionProcessor;
-import org.firstinspires.ftc.teamcode.common.processors.FTCDashboardPreviewProcessor;
 import org.firstinspires.ftc.teamcode.common.processors.TestProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
@@ -26,22 +25,19 @@ public class ComputerVision<T extends VisionProcessor> {
     public final T processor;
 
     public ComputerVision(T processor, CameraName webcam, Size cameraResolution, boolean enablePreview) {
-        VisionPortal.Builder visionPortalBuilder = new VisionPortal.Builder()
-                .setCameraResolution(cameraResolution)
-                .setAutoStopLiveView(!enablePreview)
-                .enableLiveView(enablePreview)
-                .addProcessor(processor)
-                .setCamera(webcam);
-
-        // Setup a FTC Dashboard Stream
-        if (enablePreview) {
-            FTCDashboardPreviewProcessor livePreviewSource = new FTCDashboardPreviewProcessor();
-            visionPortalBuilder.addProcessor(livePreviewSource);
-            FtcDashboard.getInstance().startCameraStream(livePreviewSource, 0);
-        }
-
-        this.visionPortal = visionPortalBuilder.build();
         this.processor = processor;
+        this.visionPortal = new VisionPortal.Builder()
+            .setCameraResolution(cameraResolution)
+            .setAutoStopLiveView(!enablePreview)
+            .enableLiveView(enablePreview)
+            .addProcessor(processor)
+            .setCamera(webcam)
+            .build();
+
+        if (enablePreview)
+            FtcDashboard
+                .getInstance()
+                .startCameraStream(this.visionPortal, 0);
     }
 
     private static final String DEFAULT_WEBCAM_NAME = "webcam";
@@ -105,14 +101,14 @@ public class ComputerVision<T extends VisionProcessor> {
             boolean enablePreview
     ) {
         return new ComputerVision<>(
-                new AprilTagProcessor.Builder()
-                    .setDrawCubeProjection(enablePreview)
-                    .setDrawTagOutline(enablePreview)
-                    .setDrawTagID(enablePreview)
-                    .setDrawAxes(enablePreview)
-                    .build(),
-                hardwareMap,
-                enablePreview
+            new AprilTagProcessor.Builder()
+                .setDrawCubeProjection(enablePreview)
+                .setDrawTagOutline(enablePreview)
+                .setDrawTagID(enablePreview)
+                .setDrawAxes(enablePreview)
+                .build(),
+            hardwareMap,
+            enablePreview
         );
     }
 
@@ -131,12 +127,12 @@ public class ComputerVision<T extends VisionProcessor> {
             boolean enablePreview
     ) {
         return new ComputerVision<>(
-                new ColorDetectionProcessor(
-                        new Scalar(  0,   0, 178), // LOWER HSV
-                        new Scalar(172, 111, 255)  // UPPER HSV
-                ),
-                hardwareMap,
-                enablePreview
+            new ColorDetectionProcessor(
+                new Scalar(  0,   0, 178), // LOWER HSV
+                new Scalar(172, 111, 255)  // UPPER HSV
+            ),
+            hardwareMap,
+            enablePreview
         );
     }
 
@@ -153,9 +149,9 @@ public class ComputerVision<T extends VisionProcessor> {
             boolean enablePreview
     ) {
         return new ComputerVision<>(
-                TfodProcessor.easyCreateWithDefaults(),
-                hardwareMap,
-                enablePreview
+            TfodProcessor.easyCreateWithDefaults(),
+            hardwareMap,
+            enablePreview
         );
     }
 }
