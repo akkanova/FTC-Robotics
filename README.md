@@ -11,6 +11,6 @@ This Github repository is a fork of `FIRST-Tech-Challenge/FtcRobotController`. C
 ## Additional Resources
 
 - [Game Manual Zero](https://gm0.org)
-- [AcmeRobotics/road-runner-quickstart (quickstart1)](https://github.com/acmerobotics/road-runner-quickstart/tree/quickstart1)
-- [Learn Road Runner](https://learnroadrunner.com/)
+- [Road Runner Quick-start](https://github.com/acmerobotics/road-runner-quickstart)
+- [Road Runner 1.0.x Documentation](https://rr.brott.dev/docs/v1-0/migration/)
 - [FTC lib](https://ftclib.org)

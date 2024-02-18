@@ -34,7 +34,7 @@ public class ColorDetectionProcessor implements VisionProcessor {
     private static final int CANVAS_PADDING_PX = 12;
     private final Object drawSync; // For multi-threading sync..
 
-    /** The arbitrary regions the object might be in. */
+    /** The arbitrary regions that the object might be in. */
     public enum FoundRegion {
         NONE,
         LEFT,
