@@ -5,15 +5,20 @@ import com.acmerobotics.roadrunner.MecanumKinematics;
 import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.Time;
 import com.acmerobotics.roadrunner.Twist2dDual;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.Vector2dDual;
 import com.acmerobotics.roadrunner.ftc.Encoder;
+import com.acmerobotics.roadrunner.ftc.FlightRecorder;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.common.GlobalConfig;
 import org.firstinspires.ftc.teamcode.common.HardwareManager;
+import org.firstinspires.ftc.teamcode.common.misc.RoadRunnerLog;
 
 /**
  * Localizer that utilizes the built-in encoders within each of the 4-motors in a mecanum
@@ -35,6 +40,7 @@ public class MecanumLocalizer implements Localizer {
     private int lastBackLeftPosition;
     private int lastBackRightPosition;
     private Rotation2d lastHeading;
+    private boolean initialized;
 
     private final IMU imu;
 
@@ -44,13 +50,6 @@ public class MecanumLocalizer implements Localizer {
         backLeftWheelEncoder   = new OverflowEncoder(new RawEncoder(hardwareManager.getBackLeftWheelMotor()));
         backRightWheelEncoder  = new OverflowEncoder(new RawEncoder(hardwareManager.getBackRightWheelMotor()));
         imu = hardwareManager.lazyIMU.get();
-
-        // Set Initial measurements
-        lastFrontLeftPosition  = frontLeftWheelEncoder.getPositionAndVelocity().position;
-        lastFrontRightPosition = frontRightWheelEncoder.getPositionAndVelocity().position;
-        lastBackLeftPosition   = backLeftWheelEncoder.getPositionAndVelocity().position;
-        lastBackRightPosition  = backRightWheelEncoder.getPositionAndVelocity().position;
-        lastHeading = getCurrentIMUHeading();
     }
 
     @Override
@@ -60,9 +59,35 @@ public class MecanumLocalizer implements Localizer {
         PositionVelocityPair backLeftPosVel   = backLeftWheelEncoder.getPositionAndVelocity();
         PositionVelocityPair backRightPosVel  = backRightWheelEncoder.getPositionAndVelocity();
 
-        Rotation2d heading = getCurrentIMUHeading();
-        double headingDelta = heading.minus(lastHeading);
+        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        Rotation2d heading = Rotation2d.exp(angles.getYaw(AngleUnit.RADIANS));
 
+        FlightRecorder.write(
+            "MECANUM_LOCALIZER_INPUTS",
+            new RoadRunnerLog.MecanumLocalizerInputsLogMessage(
+                frontLeftPosVel, frontRightPosVel,
+                backLeftPosVel, backRightPosVel, angles
+            )
+        );
+
+        // Only read the initial position when Op mode has started
+        // Which will call this.. through "Actions"..
+        if (!initialized) {
+            initialized = true;
+
+            lastFrontLeftPosition  = frontLeftWheelEncoder.getPositionAndVelocity().position;
+            lastFrontRightPosition = frontRightWheelEncoder.getPositionAndVelocity().position;
+            lastBackLeftPosition   = backLeftWheelEncoder.getPositionAndVelocity().position;
+            lastBackRightPosition  = backRightWheelEncoder.getPositionAndVelocity().position;
+            lastHeading = heading;
+
+            return new Twist2dDual<>(
+                Vector2dDual.constant(new Vector2d(0, 0), 2),
+                DualNum.constant(0, 2)
+            );
+        }
+
+        double headingDelta = heading.minus(lastHeading);
         Twist2dDual<Time> twist = GlobalConfig.MecanumDriveConfig.kinematics.forward(
             new MecanumKinematics.WheelIncrements<>(
                 new DualNum<Time>(new double[] {
@@ -93,14 +118,6 @@ public class MecanumLocalizer implements Localizer {
         return new Twist2dDual<>(
             twist.line,
             DualNum.cons(headingDelta, twist.angle.drop(1))
-        );
-    }
-
-    /** @return the current IMU heading in {@link Rotation2d} */
-    private Rotation2d getCurrentIMUHeading() {
-        return Rotation2d.exp(imu
-            .getRobotYawPitchRollAngles()
-            .getYaw(AngleUnit.RADIANS)
         );
     }
 }

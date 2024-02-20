@@ -18,7 +18,7 @@ public class TestProcessor implements VisionProcessor {
     @Override
     public Object processFrame(Mat frame, long captureTimeNanos) {
         // Convert the frame into grayscale
-        // Only do this for testing.. Never actually change the values of `frame`
+        // Only do this for testing.. Never actually mutate the values of `frame`
         Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGBA2GRAY);
         return null;
     }

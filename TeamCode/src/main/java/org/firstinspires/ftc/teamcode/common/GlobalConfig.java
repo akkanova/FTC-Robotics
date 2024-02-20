@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.common.hardware.MecanumDrive;
 import java.util.Arrays;
 
 /**
- * One stop shop for all dynamically configurable
+ * One stop shop for all <b>dynamically</b> configurable
  * variables that exists in our codebase.
  */
 public final class GlobalConfig {
@@ -27,6 +27,11 @@ public final class GlobalConfig {
      * */
     @Config
     public static final class MecanumDriveConfig {
+        /** How many poses it will store in it's history before it starts pruning old ones..*/
+        public static int maxPoseHistory = 100;
+        /** Only used by FTC Dashboard to represent the size of the robot */
+        public static int robotRadius = 9;
+
         /** Determined through
          * <a href="https://rr.brott.dev/docs/v1-0/tuning#forwardpushtest">
          *     ForwardPushTest
