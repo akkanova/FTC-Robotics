@@ -94,20 +94,23 @@ public abstract class SelfDriving extends LinearOpMode {
     }
 
     //------------------------------------------------------------------------------------------------
-    // Arm Controls
+    // Simple Arm Autonomous
     //------------------------------------------------------------------------------------------------
     protected final double COUNTS_PER_ELBOW_REVOLUTION = 1440;
-    protected final double COUNTS_PER_ANGLE = COUNTS_PER_ELBOW_REVOLUTION / 360.0; // DEGREES
+    protected final double ARM_GEAR_RATIO = 2;
+    protected final double COUNTS_PER_ANGLE = (COUNTS_PER_ELBOW_REVOLUTION * ARM_GEAR_RATIO) / 360.0; // DEGREES
     protected final double ELBOW_MOTOR_POWER = 0.5;
-
-    protected void moveElbowMotors(double endPositionAngle) {
-        if (!opModeIsActive())
-            return;
-
+    protected void moveElbowMotor(double endPositionAngle) {
+        /*
+         * This is a copy of the moveElbowMotors() from selfDriving with a very very
+         * experimental way of changing the direction of the motor
+         * */
         if(endPositionAngle >= 0) {
             hardwareManager.elbowArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            hardwareManager.elbowArmMotor.setPower(0.2);
         } else {
             hardwareManager.elbowArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            hardwareManager.elbowArmMotor.setPower(0.5);
         }
 
         double total_counts = COUNTS_PER_ANGLE * endPositionAngle; // Angle of movement desired
@@ -117,34 +120,24 @@ public abstract class SelfDriving extends LinearOpMode {
                 : (motor_position - total_counts); // The desired end position of the motors angle
 
         hardwareManager.elbowArmMotor.setPower(ELBOW_MOTOR_POWER);
-
-        while (opModeIsActive() && hardwareManager.elbowArmMotor.getCurrentPosition() < target_angle) {
-            idle();
+        while (hardwareManager.elbowArmMotor.getCurrentPosition() <= target_angle) {
+            //idle()
         }
 
         hardwareManager.elbowArmMotor.setPower(0);
     }
 
-    protected void moveWristTillSeconds(double ms) {
-        if (!opModeIsActive())
-            return;
-
-        ElapsedTime elapsedTime = new ElapsedTime();
-        hardwareManager.elbowArmMotor.setPower(ELBOW_MOTOR_POWER);
-        while(opModeIsActive() && elapsedTime.milliseconds() <= ms){
-            idle();
+    //---- Wrist Controls ----
+    protected void openClawServos(boolean isServoLeft){
+        if(isServoLeft){
+            hardwareManager.clawServoLeft.setPosition(0.5);
+            sleep(1000);
+            hardwareManager.clawServoLeft.setPosition(0);
+        } else {
+            hardwareManager.clawServoRight.setPosition(0.5);
+            sleep(1000);
+            hardwareManager.clawServoRight.setPosition(0);
         }
-        hardwareManager.elbowArmMotor.setPower(0);
-    }
-
-
-    protected void openClaw() {
-        if (!opModeIsActive())
-            return;
-
-        //hardwareManager.clawServo.setPower(0.7);
-        //sleep(CLAW_OPEN_MS);
-        //hardwareManager.clawServo.setPower(0);
     }
 
     //------------------------------------------------------------------------------------------------

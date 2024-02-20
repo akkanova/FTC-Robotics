@@ -46,7 +46,8 @@ public class HardwareManager {
     //------------------------------------------------------------------------------------------------
     public final Servo clawServoLeft;
     public final Servo clawServoRight;
-    public final DcMotorImpl elbowArmMotor;
+    public final DcMotorImplEx elbowArmMotor;
+    public final CRServo clawExtenderServo;
 
 
     //------------------------------------------------------------------------------------------------
@@ -60,7 +61,6 @@ public class HardwareManager {
     // Lift
     //------------------------------------------------------------------------------------------------
     public final DcMotorImplEx liftMotor;
-
 
     //------------------------------------------------------------------------------------------------
     // Sensors
@@ -103,12 +103,15 @@ public class HardwareManager {
         clawServoLeft = hardwareMap.get(Servo.class, "ClawLeftS");
         clawServoRight = hardwareMap.get(Servo.class, "ClawRightS");
         elbowArmMotor = hardwareMap.get(DcMotorImplEx.class, "ElbowArmM");
+        clawExtenderServo = hardwareMap.get(CRServo.class, "clawExtenderS");
 
         clawServoLeft.setDirection(Servo.Direction.REVERSE);
         clawServoRight.setDirection(Servo.Direction.FORWARD);
 
         elbowArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         elbowArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        clawExtenderServo.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Drone Launcher
         //droneLauncherBase = hardwareMap.get(ServoImplEx.class, "LauncherBaseS");
@@ -119,8 +122,6 @@ public class HardwareManager {
 
         // Lift
         liftMotor = hardwareMap.get(DcMotorImplEx.class, "LiftM");
-        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Sensors
         voltageSensor = hardwareMap.voltageSensor.iterator().next();

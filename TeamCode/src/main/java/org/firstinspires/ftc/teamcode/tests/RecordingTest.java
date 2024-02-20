@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import java.util.ArrayList;
 
 import android.util.Range;
 
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.all_purpose.Misc;
 //
 
 public abstract class RecordingTest extends OpMode {
-    //protected ArrayList<String> recordArray;
+    //protected Array[][] recordArray = new ArrayList[2][];
     protected boolean dPadPressed = false;
 
     protected ElapsedTime timeElapsed;
@@ -53,42 +54,42 @@ public abstract class RecordingTest extends OpMode {
     protected static final double LIFT_POWER_DELTA = 1.0;
     protected static final double ARM_MOTOR_DELTA = 1.0;
     protected static final double ARM_SERVO_DELTA = 1.0;
-    /*
-    public void processUserInputTest() {
 
-        if (gamepad1.dpad_left || gamepad1.dpad_right || gamepad1.dpad_down || gamepad1.dpad_up) {
-            if (!buttonPressed) {
-                buttonPressed = true;
-                timeElapsed.reset();
-            }
-            if (gamepad1.dpad_right) {
-                        setLeftPower(1);
-                setRightPower(-1);
-            } else if (gamepad1.dpad_left) {
-                setLeftPower(-1);
-                setRightPower(1);
-            } else if (gamepad1.dpad_up) {
-                setLeftPower(-1);
-                setRightPower(-1);
-            } else if (gamepad1.dpad_down) {
-                setLeftPower(1);
-                setRightPower(1);
-            }
-        } else {
+//    public void processUserInputTest() {
+//
+//        if (gamepad1.dpad_left || gamepad1.dpad_right || gamepad1.dpad_down || gamepad1.dpad_up) {
+//            if (!buttonPressed) {
+//                buttonPressed = true;
+//                timeElapsed.reset();
+//            }
+//            if (gamepad1.dpad_right) {
+//                        setLeftPower(1);
+//                setRightPower(-1);
+//            } else if (gamepad1.dpad_left) {
+//                setLeftPower(-1);
+//                setRightPower(1);
+//            } else if (gamepad1.dpad_up) {
+//                setLeftPower(-1);
+//                setRightPower(-1);
+//            } else if (gamepad1.dpad_down) {
+//                setLeftPower(1);
+//                setRightPower(1);
+//            }
+//        } else {
+//
+//            if (buttonPressed) {
+//                buttonPressed = false;
+//                recordArray
+//            }
+//            setLeftPower(0);
+//            setRightPower(0);
+//        }
+//
+//
+//
+//    }
 
-            if (buttonPressed) {
-                buttonPressed = false;
-                recordArray.app
-            }
-            setLeftPower(0);
-            setRightPower(0);
-        }
 
-
-
-    }
-
-     */
 
     public void setRightPower(double power) {
         frontRightWheelPower = power;
@@ -185,58 +186,12 @@ public abstract class RecordingTest extends OpMode {
             }
         }
 
-        if(gamepad1.a){
-            moveClawServos(true);
-        } else if(gamepad1.b){
-            moveClawServos(false);
-        }
-        /*
-         * this is still a big work in progress
-         * This code works!!
-         */
     }
     protected void armControlsOverride(){
 
     }
 
     //---- Wrist Controls ----
-    protected boolean rightServoBusy = false;
-    protected boolean leftServoBusy = false;
-    protected int CLAW_OPEN_MS = 0;
-
-    protected void setServoIsBusy(boolean isServoOne, boolean isBusy){
-        if(isServoOne){
-            leftServoBusy = isBusy;
-        } else {
-            rightServoBusy = isBusy;
-        }
-    }
-    protected void moveClawServos (boolean isServoOne){
-//        boolean motorStateBusy = (isServoOne)
-//                ? leftServoBusy
-//                : rightServoBusy;
-//        if(!motorStateBusy){
-//            CRServoImplEx selectedServo = (isServoOne)
-//                    ?hardwareManager.clawServoLeft
-//                    :hardwareManager.clawServoRight;
-//
-//            switch(selectedServo.getDirection()){
-//                case FORWARD:
-//                    selectedServo.setDirection(DcMotorSimple.Direction.REVERSE);
-//                    break;
-//                default:
-//                    selectedServo.setDirection(DcMotorSimple.Direction.FORWARD);
-//                    break;
-//            }
-//
-//            selectedServo.setPower(0.7);
-//            setServoIsBusy(isServoOne, true);
-//            sleep(CLAW_OPEN_MS);
-//            setServoIsBusy(isServoOne, false);
-//            selectedServo.setPower(0);
-//        }
-
-    }
 
     //------------------------------------------------------------------------------------------------
     // Debug
@@ -270,13 +225,7 @@ public abstract class RecordingTest extends OpMode {
         hardwareManager.getBackLeftWheel().setPower(WHEELS_POWER_RANGE.clamp(backLeftWheelPower));
         hardwareManager.getBackRightWheel().setPower(WHEELS_POWER_RANGE.clamp(backRightWheelPower));
 
-//        hardwareManager.clawServoLeft.setPower(ARM_SERVO_POWER_RANGE.clamp(clawServoPower));
-//        hardwareManager.clawServoRight.setPower(ARM_SERVO_POWER_RANGE.clamp(clawServoPower));
-
         hardwareManager.liftMotor.setPower(LIFT_POWER_RANGE.clamp(liftMotorPower));
-
-        //hardwareManager.droneLauncherBase.setPosition(0);
-        //hardwareManager.droneLauncherHook.setPosition(0);
 
         //if (unhook)
             //hardwareManager.droneLauncherHook.setPosition(1);

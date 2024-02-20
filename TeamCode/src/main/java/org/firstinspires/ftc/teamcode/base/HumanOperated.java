@@ -121,10 +121,13 @@ public abstract class HumanOperated extends OpMode {
     protected void useDefaultLiftControls() {
         liftMotorPower = 0;
 
-        if (gamepad1.dpad_up || gamepad2.dpad_up)
+        if (gamepad1.right_bumper) {
+            hardwareManager.liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             liftMotorPower = LIFT_POWER_DELTA;
-        else if (gamepad1.dpad_down || gamepad2.dpad_down)
-            liftMotorPower = -LIFT_POWER_DELTA;
+        } else if (gamepad1.left_bumper){
+            hardwareManager.liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            liftMotorPower = LIFT_POWER_DELTA;
+        }
     }
 
     protected void useDefaultDroneLauncherControls() {
@@ -132,13 +135,13 @@ public abstract class HumanOperated extends OpMode {
     }
 
     //------------------------------------------------------------------------------------------------
-    // nEw ArM cONtrOls (experimental)
+    // Simple Arm Controls
     //------------------------------------------------------------------------------------------------
-    protected final double COUNTS_PER_ELBOW_REVOLUTION = 2880;
-    protected final double COUNTS_PER_ANGLE = COUNTS_PER_ELBOW_REVOLUTION / 360.0; // DEGREES
-    protected final double ELBOW_MOTOR_POWER = 0.5;
-    protected final double WRIST_SERVO_POWER = 0.5;
-    protected boolean isUp = false;
+    protected final double COUNTS_PER_ELBOW_REVOLUTION = 1440;
+    protected final double ARM_GEAR_RATIO = 2;
+    protected final double COUNTS_PER_ANGLE = (COUNTS_PER_ELBOW_REVOLUTION * ARM_GEAR_RATIO) / 360.0; // DEGREES
+    protected double ELBOW_MOTOR_POWER = 0.3;
+    protected boolean isUp = false; // If the arm has been raised up
     protected void moveElbowMotors(double endPositionAngle) {
         /*
         * This is a copy of the moveElbowMotors() from selfDriving with a very very
@@ -146,8 +149,10 @@ public abstract class HumanOperated extends OpMode {
         * */
         if(endPositionAngle >= 0) {
             hardwareManager.elbowArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            ELBOW_MOTOR_POWER = 0.2;
         } else {
             hardwareManager.elbowArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            ELBOW_MOTOR_POWER = 0.5;
         }
 
         double total_counts = COUNTS_PER_ANGLE * endPositionAngle; // Angle of movement desired
@@ -167,29 +172,26 @@ public abstract class HumanOperated extends OpMode {
         if (!hardwareManager.elbowArmMotor.isBusy()) {
             if(gamepad1.x){
                 if(!isUp){
-                    moveElbowMotors(-90);
+                    moveElbowMotors(-80);
                     isUp = true;
-                    // if x is pressed then arm moves down by 45 degrees
+                    // if x is pressed then arm moves down by 90 degrees
                 }else{
-                    moveElbowMotors(90);
+                    moveElbowMotors(80);
                     isUp = false;
                     // if y is pressed then arm moves up by 45 degrees
                 }
             }
         }
-        telemetry.addData("IS UP: ", isUp);
-        telemetry.update();
-
         //--- Claw controls ---
-        if(gamepad1.a){
-            moveClawServos(true);
-        } else {
-            hardwareManager.clawServoLeft.setPosition(0);
+        if(gamepad1.a){ // if a is pressed..
+            moveClawServos(true); // open left claw servo
+        } else { // if a is not pressed..
+            hardwareManager.clawServoLeft.setPosition(0); // go back to closed position
         }
-        if(gamepad1.b){
-            moveClawServos(false);
-        } else {
-            hardwareManager.clawServoRight.setPosition(0);
+        if(gamepad1.b){ // if b is pressed..
+            moveClawServos(false); // open right claw servo
+        } else { // if b is not pressed
+            hardwareManager.clawServoRight.setPosition(0); // go back to closed position
         }
     }
 
@@ -202,11 +204,6 @@ public abstract class HumanOperated extends OpMode {
             hardwareManager.clawServoRight.setPosition(0.5);
         }
     }
-
-    protected void wristRotation(){
-
-    }
-
 
     //------------------------------------------------------------------------------------------------
     // Debug
@@ -240,6 +237,9 @@ public abstract class HumanOperated extends OpMode {
         hardwareManager.getBackRightWheel().setPower(WHEELS_POWER_RANGE.clamp(backRightWheelPower));
 
         hardwareManager.liftMotor.setPower(LIFT_POWER_RANGE.clamp(liftMotorPower));
+
+        //telemetry.addData("POSITION: ", );
+        //telemetry.update();
 
         //hardwareManager.droneLauncherBase.setPosition(0);
         //hardwareManager.droneLauncherHook.setPosition(0);

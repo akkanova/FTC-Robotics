@@ -42,8 +42,7 @@ public class HardwareDebug extends HumanOperated {
                 .addData("Front-Right Wheel", hardwareManager.getFrontRightWheel().getCurrentPosition())
                 .addData("Back-Left Wheel",   hardwareManager.getBackLeftWheel().getCurrentPosition())
                 .addData("Back-Right Wheel",  hardwareManager.getBackRightWheel().getCurrentPosition())
-                .addData("Bottom Arm Motor",  hardwareManager.elbowArmMotor.getCurrentPosition())
-                .addData("Lift Motor",        hardwareManager.liftMotor.getCurrentPosition());
+                .addData("Bottom Arm Motor",  hardwareManager.elbowArmMotor.getCurrentPosition());
 
         telemetry.update();
     }

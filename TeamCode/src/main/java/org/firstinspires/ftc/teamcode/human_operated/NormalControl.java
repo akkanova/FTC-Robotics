@@ -20,15 +20,11 @@ import org.firstinspires.ftc.teamcode.base.HumanOperated;
  */
 @TeleOp(name = "Normal Control", group = "TeleOp")
 public class NormalControl extends HumanOperated {
-    ElapsedTime timeElapsed = new ElapsedTime();
-    boolean armControlOverride = false;
     @Override
     protected void processUserInput() {
         //useDefaultDroneLauncherControls();
-        //useDefaultMovementControls();
-        //useDefaultLiftControls();
+        useDefaultMovementControls();
+        useDefaultLiftControls();
         useSimpleArmControls();
-        //checkSpeedOfEachWheel((int)timeElapsed.seconds(), 2);
-        //useDefaultArmControls();
     }
 }

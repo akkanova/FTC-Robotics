@@ -18,6 +18,6 @@ public class LeftStartParking extends SelfDriving {
         rotate(-90);
         move(2.6);
         rotate(-45);
-        openClaw();
+        //openClaw();
     }
 }

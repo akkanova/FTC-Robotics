@@ -12,6 +12,7 @@ public class BackParking extends SelfDriving {
     @Override
     protected void runAutonomous() {
         move(1.2);
-        openClaw();
+        openClawServos(false);
+        openClawServos(true);
     }
 }
