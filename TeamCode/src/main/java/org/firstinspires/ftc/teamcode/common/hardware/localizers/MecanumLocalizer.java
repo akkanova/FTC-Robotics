@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.ftc.FlightRecorder;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -50,6 +51,11 @@ public class MecanumLocalizer implements Localizer {
         backLeftWheelEncoder   = new OverflowEncoder(new RawEncoder(hardwareManager.getBackLeftWheelMotor()));
         backRightWheelEncoder  = new OverflowEncoder(new RawEncoder(hardwareManager.getBackRightWheelMotor()));
         imu = hardwareManager.lazyIMU.get();
+
+        frontLeftWheelEncoder.setDirection(hardwareManager.getFrontLeftWheelMotor().getDirection());
+        frontRightWheelEncoder.setDirection(hardwareManager.getFrontRightWheelMotor().getDirection());
+        backLeftWheelEncoder.setDirection(hardwareManager.getBackLeftWheelMotor().getDirection());
+        backRightWheelEncoder.setDirection(hardwareManager.getBackRightWheelMotor().getDirection());
     }
 
     @Override
