@@ -1,15 +1,10 @@
 package org.firstinspires.ftc.teamcode.tests.tuning;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
-import org.firstinspires.ftc.teamcode.common.HardwareManager;
-import org.firstinspires.ftc.teamcode.common.hardware.MecanumDrive;
 import org.firstinspires.ftc.teamcode.common.misc.RoadRunnerLog;
 
 /**
@@ -17,13 +12,10 @@ import org.firstinspires.ftc.teamcode.common.misc.RoadRunnerLog;
  *      Copied from Road Runner quickstart  -  LocalizationTest.java
  * </a>. Modified for mecanum drive base testing only.
  */
-public class LocalizationTest extends LinearOpMode {
+public class LocalizationTest extends BaseTuningTest {
     @Override
-    public void runOpMode() throws InterruptedException {
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        HardwareManager hardwareManager = new HardwareManager(hardwareMap);
-        MecanumDrive drive = new MecanumDrive(hardwareManager, new Pose2d(0, 0, 0));
-
+    public void runOpMode() {
+        initializeRequirements();
         waitForStart();
 
         while(opModeIsActive()) {

@@ -52,6 +52,8 @@ public class MecanumLocalizer implements Localizer {
         backRightWheelEncoder  = new OverflowEncoder(new RawEncoder(hardwareManager.getBackRightWheelMotor()));
         imu = hardwareManager.lazyIMU.get();
 
+        // A: the motors already outputs the correct position direction, but RawEncoder flips it..
+        // check RawEncoder.applyDirection() for more info..
         frontLeftWheelEncoder.setDirection(hardwareManager.getFrontLeftWheelMotor().getDirection());
         frontRightWheelEncoder.setDirection(hardwareManager.getFrontRightWheelMotor().getDirection());
         backLeftWheelEncoder.setDirection(hardwareManager.getBackLeftWheelMotor().getDirection());

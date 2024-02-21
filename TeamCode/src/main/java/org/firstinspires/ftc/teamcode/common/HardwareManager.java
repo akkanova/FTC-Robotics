@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.teamcode.common.misc.Lazy;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -42,6 +43,14 @@ public class HardwareManager {
             consumer.accept(wheel);
         }
     }
+
+    //-----------------------------------------------------------------------------------
+    // Dead Wheels
+    //-----------------------------------------------------------------------------------
+
+    public final Lazy<DcMotorEx> deadWheelLeft;
+    public final Lazy<DcMotorEx> deadWheelRight;
+    public final Lazy<DcMotorEx> deadWheelPerpendicular;
 
     //-----------------------------------------------------------------------------------
     // Arm
@@ -103,6 +112,13 @@ public class HardwareManager {
 
         // More Info : https://gm0.org/en/latest/docs/software/adv-control-system/sdk-motors.html
         doForAllWheels((motor) -> motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
+
+        // Dead Wheels ------------------------------------------------------------------
+        // A: we both don't have dead wheels and aren't using them yet, that's why their purposely lazily loaded..
+
+        deadWheelLeft  = new Lazy<>(() -> hardwareMap.get(DcMotorEx.class, "DeadWheelLeftE"));
+        deadWheelRight = new Lazy<>(() -> hardwareMap.get(DcMotorEx.class, "DeadWheelRightE"));
+        deadWheelPerpendicular = new Lazy<>(() -> hardwareMap.get(DcMotorEx.class, "DeadWheelPerpendicularE"));
 
         // Arm --------------------------------------------------------------------------
         clawServoLeft = hardwareMap.get(ServoImplEx.class, "ClawLeftS");
