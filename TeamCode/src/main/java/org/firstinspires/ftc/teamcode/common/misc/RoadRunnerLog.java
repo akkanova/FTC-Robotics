@@ -14,10 +14,10 @@ import org.firstinspires.ftc.teamcode.common.GlobalConfig;
 import org.firstinspires.ftc.teamcode.common.hardware.MecanumDrive;
 
 /**
- * Class for containing all the special formatters road runner utilizes
+ * Class for containing all the special formatters Road Runner utilizes
  * for its verbose logging.
  * */
-public class RoadRunnerLog {
+public final class RoadRunnerLog {
     /** Logger specifically for {@link MecanumDrive} */
     public static class MecanumDriveLogger {
         public final DownsampledWriter estimatedPoseWriter;

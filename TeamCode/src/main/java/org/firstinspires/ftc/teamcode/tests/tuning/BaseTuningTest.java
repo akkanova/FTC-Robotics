@@ -14,7 +14,7 @@ public abstract class BaseTuningTest extends LinearOpMode {
     protected MecanumDrive drive;
 
     /** Initialize ftc-dashboard telemetry, {@link MecanumDrive} and {@link HardwareManager} */
-    protected void initializeRequirements() {
+    protected void initializeDependencies() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         hardwareManager = new HardwareManager(hardwareMap);
         drive = new MecanumDrive(hardwareManager, new Pose2d(0, 0, 0));

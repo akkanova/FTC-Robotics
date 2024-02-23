@@ -12,7 +12,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 public class SplineTest extends BaseTuningTest {
     @Override
     public void runOpMode() throws InterruptedException {
-        initializeRequirements();
+        initializeDependencies();
         Pose2d beginPose = new Pose2d(0, 0, 0);
 
         waitForStart();

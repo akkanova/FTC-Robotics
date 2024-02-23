@@ -12,7 +12,6 @@ import com.acmerobotics.roadrunner.ftc.FlightRecorder;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -22,9 +21,10 @@ import org.firstinspires.ftc.teamcode.common.HardwareManager;
 import org.firstinspires.ftc.teamcode.common.misc.RoadRunnerLog;
 
 /**
- * Localizer that utilizes the built-in encoders within each of the 4-motors in a mecanum
- * drive-base. Due to unavoidable wheel slips during high speed maneuvers, any dead wheel
- * localizer is preferred over this.
+ * Localizer that utilizes the built-in wheel motor encoders present in a normal Mecanum wheel
+ * drive-base. Significantly less reliable than any physical odometer localization due to
+ * unavoidable wheel slips during high speed maneuvers. If available, the utilize Three-wheel
+ * odometer kits instead.
 
  * <a href="https://github.com/acmerobotics/road-runner-quickstart/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/MecanumDrive.java#L123">
  *      Copied from Road Runner quickstart  -  MecanumDrive.java:123
@@ -83,10 +83,10 @@ public class MecanumLocalizer implements Localizer {
         if (!initialized) {
             initialized = true;
 
-            lastFrontLeftPosition  = frontLeftWheelEncoder.getPositionAndVelocity().position;
-            lastFrontRightPosition = frontRightWheelEncoder.getPositionAndVelocity().position;
-            lastBackLeftPosition   = backLeftWheelEncoder.getPositionAndVelocity().position;
-            lastBackRightPosition  = backRightWheelEncoder.getPositionAndVelocity().position;
+            lastFrontLeftPosition  = frontLeftPosVel.position;
+            lastFrontRightPosition = frontRightPosVel.position;
+            lastBackLeftPosition   = backLeftPosVel.position;
+            lastBackRightPosition  = backRightPosVel.position;
             lastHeading = heading;
 
             return new Twist2dDual<>(

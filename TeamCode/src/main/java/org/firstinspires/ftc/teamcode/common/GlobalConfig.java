@@ -18,6 +18,29 @@ import java.util.Arrays;
  * variables that exists in our codebase.
  */
 public final class GlobalConfig {
+    /** Name of that component in the Control Hub's Hardware Configuration */
+    public static final class HardwareBindingNames {
+        public static final String imu = "imu";
+
+        public static final String frontLeftWheelMotor  = "FrontLeftM";
+        public static final String frontRightWheelMotor = "FrontRightM";
+        public static final String backLeftWheelMotor   = "BackLeftM";
+        public static final String backRightWheelMotor  = "BackRightM";
+
+        public static final String deadWheelLeftEncoder = "DeadWheelLeftE";
+        public static final String deadWheelRightEncoder = "DeadWheelRightE";
+        public static final String deadWheelPerpendicularEncoder = "DeadWheelPerpendicularE";
+
+        public static final String leftClawServo = "ClawLeftS";
+        public static final String rightClawServo = "ClawRightS";
+        public static final String elbowMotor = "ElbowM";
+
+        public static final String droneLauncherServo = "";
+        public static final String droneLauncherHookServo = "";
+
+        public static final String liftMotor = "LiftM";
+    }
+
     /**
      * Configuration specifically for a {@link MecanumDrive}.
      * Fine tune variables located here using these instructions
@@ -125,4 +148,10 @@ public final class GlobalConfig {
                 maxProfileAcceleration
             );
     }
+
+    /** Determines whether Road Runner tuning TeleOPs should not be registered */
+    public static final boolean DISABLE_ROAD_RUNNER_TUNING = true;
+
+    /** Determines whether Debug TeleOps should not be registered */
+    public static final boolean DISABLE_DEBUG_OP_MODES = false;
 }

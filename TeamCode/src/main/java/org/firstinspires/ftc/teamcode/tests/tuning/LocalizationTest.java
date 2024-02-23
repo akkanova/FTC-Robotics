@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.common.misc.RoadRunnerLog;
 public class LocalizationTest extends BaseTuningTest {
     @Override
     public void runOpMode() {
-        initializeRequirements();
+        initializeDependencies();
         waitForStart();
 
         while(opModeIsActive()) {

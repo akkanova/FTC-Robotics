@@ -5,20 +5,23 @@ import androidx.annotation.Nullable;
 import java.util.function.Supplier;
 
 /**
- * Allows the initialization of class T to be deferred
- * to a latter time when it's actually needed.
+ * Allows the initialization of class T to be deferred.
  * */
 public class Lazy<T> {
     @Nullable
     private T obj;
     private final Supplier<T> supplier;
 
+    /**
+     * @param supplier provides the initialization of class T.
+     *                 Only called at once, when needed.
+     * */
     public Lazy(Supplier<T> supplier) {
         this.supplier = supplier;
     }
 
     /** @return an instance of T */
-    public T get() {
+    public synchronized T get() {
         if (obj == null) {
             obj = supplier.get();
         }

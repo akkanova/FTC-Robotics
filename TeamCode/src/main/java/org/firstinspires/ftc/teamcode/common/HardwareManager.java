@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.teamcode.common.misc.Lazy;
+import org.firstinspires.ftc.teamcode.common.hardware.LazyOverflowEncoder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -48,17 +48,17 @@ public class HardwareManager {
     // Dead Wheels
     //-----------------------------------------------------------------------------------
 
-    public final Lazy<DcMotorEx> deadWheelLeft;
-    public final Lazy<DcMotorEx> deadWheelRight;
-    public final Lazy<DcMotorEx> deadWheelPerpendicular;
+    public final LazyOverflowEncoder deadWheelLeftEncoder;
+    public final LazyOverflowEncoder deadWheelRightEncoder;
+    public final LazyOverflowEncoder deadWheelPerpendicularEncoder;
 
     //-----------------------------------------------------------------------------------
     // Arm
     //-----------------------------------------------------------------------------------
 
-    public final ServoImplEx clawServoLeft;  // Studica Multi-Mode Smart Servo
-    public final ServoImplEx clawServoRight; // Studica Multi-Mode Smart Servo
-    public final DcMotorEx armElbowMotor;    // TETRIX TorqueNADO 40:1
+    public final ServoImplEx leftClawServo;  // Studica Multi-Mode Smart Servo
+    public final ServoImplEx rightClawServo; // Studica Multi-Mode Smart Servo
+    public final DcMotorEx elbowMotor;    // TETRIX TorqueNADO 40:1
 
     //-----------------------------------------------------------------------------------
     // Drone Launcher
@@ -86,7 +86,7 @@ public class HardwareManager {
 
         // Sensors ----------------------------------------------------------------------
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
-        lazyIMU = new LazyImu(hardwareMap, "imu",
+        lazyIMU = new LazyImu(hardwareMap, GlobalConfig.HardwareBindingNames.imu,
             new RevHubOrientationOnRobot(
                 // Orientation of the REV Control Hub's Logo relative to the Robot's body
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
@@ -97,10 +97,10 @@ public class HardwareManager {
 
         // Wheels -----------------------------------------------------------------------
         wheelMotors = new DcMotorEx[] {
-            hardwareMap.get(DcMotorEx.class, "FrontLeftM"),
-            hardwareMap.get(DcMotorEx.class, "FrontRightM"),
-            hardwareMap.get(DcMotorEx.class, "BackLeftM"),
-            hardwareMap.get(DcMotorEx.class, "BackRightM")
+            hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.frontLeftWheelMotor),
+            hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.frontRightWheelMotor),
+            hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.backLeftWheelMotor),
+            hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.backRightWheelMotor)
         };
 
         // A: I don't understand why I should allocate them into an intermediate
@@ -116,19 +116,22 @@ public class HardwareManager {
         // Dead Wheels ------------------------------------------------------------------
         // A: we both don't have dead wheels and aren't using them yet, that's why their purposely lazily loaded..
 
-        deadWheelLeft  = new Lazy<>(() -> hardwareMap.get(DcMotorEx.class, "DeadWheelLeftE"));
-        deadWheelRight = new Lazy<>(() -> hardwareMap.get(DcMotorEx.class, "DeadWheelRightE"));
-        deadWheelPerpendicular = new Lazy<>(() -> hardwareMap.get(DcMotorEx.class, "DeadWheelPerpendicularE"));
+        deadWheelLeftEncoder = new LazyOverflowEncoder(hardwareMap,
+            GlobalConfig.HardwareBindingNames.deadWheelLeftEncoder);
+        deadWheelRightEncoder = new LazyOverflowEncoder(hardwareMap,
+            GlobalConfig.HardwareBindingNames.deadWheelRightEncoder);
+        deadWheelPerpendicularEncoder = new LazyOverflowEncoder(hardwareMap,
+            GlobalConfig.HardwareBindingNames.deadWheelPerpendicularEncoder);
 
         // Arm --------------------------------------------------------------------------
-        clawServoLeft = hardwareMap.get(ServoImplEx.class, "ClawLeftS");
-        clawServoRight = hardwareMap.get(ServoImplEx.class, "ClawRightS");
-        clawServoLeft.setDirection(Servo.Direction.REVERSE);
-        clawServoRight.setDirection(Servo.Direction.FORWARD);
+        leftClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.leftClawServo);
+        rightClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.rightClawServo);
+        leftClawServo.setDirection(Servo.Direction.REVERSE);
+        rightClawServo.setDirection(Servo.Direction.FORWARD);
 
-        armElbowMotor = hardwareMap.get(DcMotorEx.class, "ElbowArmM");
-        armElbowMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        armElbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        elbowMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.elbowMotor);
+        elbowMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Drone Launcher ---------------------------------------------------------------
         //droneLauncherBase = hardwareMap.get(ServoImplEx.class, "LauncherBaseS");
@@ -137,7 +140,7 @@ public class HardwareManager {
         //droneLauncherHook.setDirection(Servo.Direction.REVERSE);
 
         // Lift -------------------------------------------------------------------------
-        liftMotor = hardwareMap.get(DcMotorEx.class, "LiftM");
+        liftMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.liftMotor);
         liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
