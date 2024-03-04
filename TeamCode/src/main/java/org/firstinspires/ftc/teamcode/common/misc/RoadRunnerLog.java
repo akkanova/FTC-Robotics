@@ -146,6 +146,29 @@ public final class RoadRunnerLog {
     }
 
     /**
+     * <a href="https://github.com/acmerobotics/road-runner-quickstart/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/messages/ThreeDeadWheelInputsMessage.java">
+     *      Copied from Road Runner quickstart  -  ThreeDeadWheelInputsMessage.java
+     * </a>
+     * */
+    public static final class ThreeDeadWheelInputsLogMessage {
+        public long timestamp;
+        public PositionVelocityPair parallelLeft;
+        public PositionVelocityPair parallelRight;
+        public PositionVelocityPair perpendicular;
+
+        public ThreeDeadWheelInputsLogMessage(
+            PositionVelocityPair parallelLeft,
+            PositionVelocityPair parallelRight,
+            PositionVelocityPair perpendicular
+        ) {
+            this.timestamp = System.nanoTime();
+            this.parallelLeft  = parallelLeft;
+            this.parallelRight = parallelRight;
+            this.perpendicular = perpendicular;
+        }
+    }
+
+    /**
      * Draws a circle and a line to represent the space the robot currently occupies and
      * direction it's current heading.
 

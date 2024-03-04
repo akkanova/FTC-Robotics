@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.VelConstraint;
 
 import org.firstinspires.ftc.teamcode.common.hardware.MecanumDrive;
+import org.firstinspires.ftc.teamcode.common.hardware.localizers.ThreeWheelLocalizer;
 
 import java.util.Arrays;
 
@@ -42,7 +43,7 @@ public final class GlobalConfig {
     }
 
     /**
-     * Configuration specifically for a {@link MecanumDrive}.
+     * Configuration specifically for {@link MecanumDrive}.
      * Fine tune variables located here using these instructions
      * <a href="https://rr.brott.dev/docs/v1-0/tuning">
      *      Road Runner v1.0.x Tuning Documentation
@@ -147,6 +148,19 @@ public final class GlobalConfig {
                 minProfileAcceleration,
                 maxProfileAcceleration
             );
+    }
+
+    /** Configuration specifically for {@link ThreeWheelLocalizer}*/
+    @Config
+    public static final class ThreeWheelLocalizerConfig {
+        public static double inchesPerTick = 1;
+
+        /** y position of the left parallel encoder (in tick units) */
+        public static double leftParallelYTicks = 0.0;
+        /** y position of the right parallel encoder (in tick units) */
+        public static double rightParallelYTicks = 1.0;
+        /** x position of the perpendicular encoder (in tick units) */
+        public static double perpendicularXTicks = 0.0;
     }
 
     /** Determines whether Road Runner tuning TeleOPs should not be registered */
