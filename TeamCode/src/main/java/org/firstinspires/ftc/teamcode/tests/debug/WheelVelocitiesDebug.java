@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.MecanumLocalizer;
+import org.firstinspires.ftc.teamcode.tests.BaseTest;
 
 /**
  *  Using
@@ -13,18 +14,20 @@ import org.firstinspires.ftc.teamcode.common.hardware.localizers.MecanumLocalize
  * see the real time velocities of each drive base wheel
  * motors graphed over time.
  * */
-public class WheelVelocitiesDebug extends BaseDebug {
+public class WheelVelocitiesDebug extends BaseTest {
     @Override
     public void runOpMode() {
-        initializeDependencies();
-        if (!(mecanumDrive.localizer instanceof MecanumLocalizer))
+        initializeBaseDrive();
+        initializeDashboardTelemetry();
+
+        if (!(drive.localizer instanceof MecanumLocalizer))
             throw new RuntimeException("Drive-base must use the built-in encoders to utilize this OpMode");
 
-        MecanumLocalizer localizer = (MecanumLocalizer) mecanumDrive.localizer;
+        MecanumLocalizer localizer = (MecanumLocalizer) drive.localizer;
         waitForStart();
 
         while (opModeIsActive()) {
-            mecanumDrive.setDrivePowers(
+            drive.setDrivePowers(
                 new PoseVelocity2d(
                     new Vector2d(
                         -gamepad1.left_stick_y,

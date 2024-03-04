@@ -163,8 +163,11 @@ public final class GlobalConfig {
         public static double perpendicularXTicks = 0.0;
     }
 
+    /** Determines whether Human-Operated TeleOps should not be registered */
+    public static final boolean DISABLE_OPERATED_OP_MODES = false;
+
     /** Determines whether Road Runner tuning TeleOPs should not be registered */
-    public static final boolean DISABLE_ROAD_RUNNER_TUNING = true;
+    public static final boolean DISABLE_ROAD_RUNNER_TUNING = false;
 
     /** Determines whether Debug TeleOps should not be registered */
     public static final boolean DISABLE_DEBUG_OP_MODES = false;

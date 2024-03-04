@@ -1,13 +1,12 @@
 package org.firstinspires.ftc.teamcode.tests.tuning;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.DriveView;
 import com.acmerobotics.roadrunner.ftc.DriveViewFactory;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.tests.BaseTest;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
  * Similar to ForwardPushTest, but determines the
  * ticks without having to manually push it
  * */
-public class ForwardDriveTest extends LinearOpMode {
+public class ForwardDriveTest extends BaseTest {
     private final DriveViewFactory factory;
     public ForwardDriveTest(DriveViewFactory factory) {
         this.factory = factory;
@@ -23,9 +22,7 @@ public class ForwardDriveTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        telemetry = new MultipleTelemetry(telemetry,
-            FtcDashboard.getInstance().getTelemetry());
-
+        initializeDashboardTelemetry();
         DriveView driveView = this.factory.make(hardwareMap);
         waitForStart();
 

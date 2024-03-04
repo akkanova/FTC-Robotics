@@ -26,9 +26,11 @@ import org.firstinspires.ftc.teamcode.common.GlobalConfig;
 import org.firstinspires.ftc.teamcode.common.HardwareManager;
 import org.firstinspires.ftc.teamcode.common.hardware.MecanumDrive;
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.MecanumLocalizer;
+import org.firstinspires.ftc.teamcode.common.hardware.localizers.ThreeWheelLocalizer;
 import org.firstinspires.ftc.teamcode.tests.debug.VisionProcessorDebug;
 import org.firstinspires.ftc.teamcode.tests.debug.WheelVelocitiesDebug;
 import org.firstinspires.ftc.teamcode.tests.tuning.LocalizationTest;
+import org.firstinspires.ftc.teamcode.tests.tuning.ManualFeedbackTuner;
 import org.firstinspires.ftc.teamcode.tests.tuning.SplineTest;
 
 import java.util.ArrayList;
@@ -78,6 +80,14 @@ public final class TestOpModesRegistrar {
                 leftEncoders.add(localizer.backLeftWheelEncoder);
                 rightEncoders.add(localizer.backRightWheelEncoder);
 
+            } else if (mecanumDrive.localizer instanceof ThreeWheelLocalizer) {
+                ThreeWheelLocalizer localizer = (ThreeWheelLocalizer) mecanumDrive.localizer;
+                parallelEncoders.add(localizer.leftParallelEncoder);
+                parallelEncoders.add(localizer.rightParallelEncoder);
+                perpendicularEncoders.add(localizer.perpendicularEncoder);
+
+            } else {
+                throw new RuntimeException("Unsupported localizer " + mecanumDrive.localizer.getClass().getName());
             }
 
             // TODO : add support for a three wheel localizer
@@ -121,7 +131,7 @@ public final class TestOpModesRegistrar {
         opModeManager.register(getMetaForClass(DeadWheelDirectionDebugger.class, group), new DeadWheelDirectionDebugger(driveViewFactory));
 
         // TODO : add later ..
-//      opModeManager.register(getMetaForClass(ManualFeedbackTuner.class, group), new ManualFeedbackTuner());
+        opModeManager.register(getMetaForClass(ManualFeedbackTuner.class, group), new ManualFeedbackTuner());
         opModeManager.register(getMetaForClass(SplineTest.class, group), new SplineTest());
         opModeManager.register(getMetaForClass(LocalizationTest.class, group), new LocalizationTest());
 
@@ -133,9 +143,9 @@ public final class TestOpModesRegistrar {
                     AngularRampLogger.class,
                     ForwardRampLogger.class,
                     LateralRampLogger.class,
+                    ManualFeedbackTuner.class,
                     ManualFeedforwardTuner.class,
                     MecanumMotorDirectionDebugger.class
-                    // ManualFeedbackTuner.class
                 )) {
                     configRoot.putVariable(
                         clazz.getSimpleName(),

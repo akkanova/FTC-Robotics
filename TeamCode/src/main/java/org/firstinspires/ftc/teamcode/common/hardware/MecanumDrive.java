@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.common.GlobalConfig;
 import org.firstinspires.ftc.teamcode.common.HardwareManager;
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.Localizer;
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.MecanumLocalizer;
+import org.firstinspires.ftc.teamcode.common.misc.DashboardUtils;
 import org.firstinspires.ftc.teamcode.common.misc.RoadRunnerLog;
 
 import java.util.LinkedList;
@@ -241,10 +242,10 @@ public final class MecanumDrive {
             drawPoseHistory(canvas);
 
             canvas.setStroke("#4CAF50");
-            RoadRunnerLog.drawRobot(canvas, txWorldTarget.value());
+            DashboardUtils.drawRobot(canvas, txWorldTarget.value());
 
             canvas.setStroke("#3F51B5");
-            RoadRunnerLog.drawRobot(canvas, currentPose);
+            DashboardUtils.drawRobot(canvas, currentPose);
             canvas.setStroke("#4CAF50FF");
             canvas.setStrokeWidth(1);
             canvas.strokePolyline(xPoints, yPoints);
@@ -326,10 +327,10 @@ public final class MecanumDrive {
             drawPoseHistory(c);
 
             c.setStroke("#4CAF50");
-            RoadRunnerLog.drawRobot(c, txWorldTarget.value());
+            DashboardUtils.drawRobot(c, txWorldTarget.value());
 
             c.setStroke("#3F51B5");
-            RoadRunnerLog.drawRobot(c, currentPose);
+            DashboardUtils.drawRobot(c, currentPose);
 
             c.setStroke("#7C4DFFFF");
             c.fillCircle(turn.beginPose.position.x, turn.beginPose.position.y, 2);

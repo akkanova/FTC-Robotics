@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.hardware.localizers;
 
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.ThreeWheelLocalizerConfig.inchesPerTick;
 import static org.firstinspires.ftc.teamcode.common.GlobalConfig.ThreeWheelLocalizerConfig.leftParallelYTicks;
 import static org.firstinspires.ftc.teamcode.common.GlobalConfig.ThreeWheelLocalizerConfig.perpendicularXTicks;
 import static org.firstinspires.ftc.teamcode.common.GlobalConfig.ThreeWheelLocalizerConfig.rightParallelYTicks;
@@ -13,7 +14,6 @@ import com.acmerobotics.roadrunner.ftc.Encoder;
 import com.acmerobotics.roadrunner.ftc.FlightRecorder;
 import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 
-import org.firstinspires.ftc.teamcode.common.GlobalConfig;
 import org.firstinspires.ftc.teamcode.common.HardwareManager;
 import org.firstinspires.ftc.teamcode.common.misc.RoadRunnerLog;
 
@@ -78,13 +78,13 @@ public class ThreeWheelLocalizer implements Localizer {
         Twist2dDual<Time> twist = new Twist2dDual<>(
             new Vector2dDual<>(
                 new DualNum<Time>(new double[] {
-                    (leftParallelYTicks * rightParallelPosDelta - leftParallelYTicks * leftParallelPosDelta) / (leftParallelYTicks - rightParallelYTicks),
+                    (leftParallelYTicks * rightParallelPosDelta - rightParallelYTicks * leftParallelPosDelta) / (leftParallelYTicks - rightParallelYTicks),
                     (leftParallelYTicks * rightParallelPosVel.velocity - rightParallelYTicks * leftParallelPosVel.velocity) / (leftParallelYTicks - rightParallelYTicks),
-                }).times(GlobalConfig.ThreeWheelLocalizerConfig.inchesPerTick),
+                }).times(inchesPerTick),
                 new DualNum<Time>(new double[]{
                     (perpendicularXTicks / (leftParallelYTicks - rightParallelYTicks) * (rightParallelPosDelta - leftParallelPosDelta) + perpendicularPosDelta),
                     (perpendicularXTicks / (leftParallelYTicks - rightParallelYTicks) * (rightParallelPosVel.velocity - leftParallelPosVel.velocity) + perpendicularPosVel.velocity)
-                }).times(GlobalConfig.ThreeWheelLocalizerConfig.inchesPerTick)
+                }).times(inchesPerTick)
             ),
             new DualNum<>(new double[] {
                 (leftParallelPosDelta - rightParallelPosDelta) / (leftParallelYTicks - rightParallelYTicks),
