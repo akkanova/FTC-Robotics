@@ -28,9 +28,9 @@ public final class GlobalConfig {
         public static final String backLeftWheelMotor   = "BackLeftM";
         public static final String backRightWheelMotor  = "BackRightM";
 
-        public static final String deadWheelLeftEncoder = "DeadWheelLeftE";
-        public static final String deadWheelRightEncoder = "DeadWheelRightE";
-        public static final String deadWheelPerpendicularEncoder = "DeadWheelPerpendicularE";
+        public static final String deadWheelLeftEncoder = frontLeftWheelMotor;
+        public static final String deadWheelRightEncoder = frontRightWheelMotor;
+        public static final String deadWheelPerpendicularEncoder = backLeftWheelMotor;
 
         public static final String leftClawServo = "ClawLeftS";
         public static final String rightClawServo = "ClawRightS";
@@ -61,12 +61,12 @@ public final class GlobalConfig {
          *     ForwardPushTest
          * </a>
          * or manually calculated.. */
-        public static double inchesPerTick = 1;
+        public static double inchesPerTick = Math.PI * 1.49606 / 2048;
         /** Determined through
          * <a href="https://rr.brott.dev/docs/v1-0/tuning#lateralpushtest-mecanum--drive-encoders-only">
          *     LateralPushTest
          * </a>. */
-        public static double lateralInchesPerTick = 1;
+        public static double lateralInchesPerTick = inchesPerTick;
         /** Determined through
          * <a href="https://rr.brott.dev/docs/v1-0/tuning#angularramplogger">
          *  AngularRampLogger
@@ -153,7 +153,7 @@ public final class GlobalConfig {
     /** Configuration specifically for {@link ThreeWheelLocalizer}*/
     @Config
     public static final class ThreeWheelLocalizerConfig {
-        public static double inchesPerTick = 1;
+        public static double inchesPerTick = MecanumDriveConfig.inchesPerTick;
 
         /** y position of the left parallel encoder (in tick units) */
         public static double leftParallelYTicks = 0.0;

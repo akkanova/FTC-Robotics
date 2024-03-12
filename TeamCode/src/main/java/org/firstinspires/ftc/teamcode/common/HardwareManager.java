@@ -56,9 +56,9 @@ public class HardwareManager {
     // Arm
     //-----------------------------------------------------------------------------------
 
-    public final ServoImplEx leftClawServo;  // Studica Multi-Mode Smart Servo
-    public final ServoImplEx rightClawServo; // Studica Multi-Mode Smart Servo
-    public final DcMotorEx elbowMotor;    // TETRIX TorqueNADO 40:1
+//    public final ServoImplEx leftClawServo;  // Studica Multi-Mode Smart Servo
+//    public final ServoImplEx rightClawServo; // Studica Multi-Mode Smart Servo
+//    public final DcMotorEx elbowMotor;    // TETRIX TorqueNADO 40:1
 
     //-----------------------------------------------------------------------------------
     // Drone Launcher
@@ -71,7 +71,7 @@ public class HardwareManager {
     // Lift
     //-----------------------------------------------------------------------------------
 
-    public final DcMotorEx liftMotor; // TETRIX TorqueNADO 40:1
+//    public final DcMotorEx liftMotor; // TETRIX TorqueNADO 40:1
 
     public HardwareManager(@NotNull HardwareMap hardwareMap) {
         // Lynx Modules (a.k.a Control Hub or Expansion Hub) ----------------------------
@@ -124,14 +124,14 @@ public class HardwareManager {
             GlobalConfig.HardwareBindingNames.deadWheelPerpendicularEncoder);
 
         // Arm --------------------------------------------------------------------------
-        leftClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.leftClawServo);
-        rightClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.rightClawServo);
-        leftClawServo.setDirection(Servo.Direction.REVERSE);
-        rightClawServo.setDirection(Servo.Direction.FORWARD);
-
-        elbowMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.elbowMotor);
-        elbowMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        leftClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.leftClawServo);
+//        rightClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.rightClawServo);
+//        leftClawServo.setDirection(Servo.Direction.REVERSE);
+//        rightClawServo.setDirection(Servo.Direction.FORWARD);
+//
+//        elbowMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.elbowMotor);
+//        elbowMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+//        elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Drone Launcher ---------------------------------------------------------------
         //droneLauncherBase = hardwareMap.get(ServoImplEx.class, "LauncherBaseS");
@@ -140,8 +140,8 @@ public class HardwareManager {
         //droneLauncherHook.setDirection(Servo.Direction.REVERSE);
 
         // Lift -------------------------------------------------------------------------
-        liftMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.liftMotor);
-        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        liftMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.liftMotor);
+//        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+//        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 }
