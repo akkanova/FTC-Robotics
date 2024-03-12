@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.common.GlobalConfig;
 import org.firstinspires.ftc.teamcode.common.HardwareManager;
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.Localizer;
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.MecanumLocalizer;
+import org.firstinspires.ftc.teamcode.common.hardware.localizers.ThreeWheelLocalizer;
 import org.firstinspires.ftc.teamcode.common.misc.DashboardUtils;
 import org.firstinspires.ftc.teamcode.common.misc.RoadRunnerLog;
 
@@ -72,7 +73,7 @@ public final class MecanumDrive {
      * encoders for localization.
      * */
     public MecanumDrive(HardwareManager hardwareManager, Pose2d initialPose) {
-        this(hardwareManager, initialPose, new MecanumLocalizer(hardwareManager));
+        this(hardwareManager, initialPose, new ThreeWheelLocalizer(hardwareManager));
     }
 
     /**

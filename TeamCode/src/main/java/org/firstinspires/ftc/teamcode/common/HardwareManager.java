@@ -117,11 +117,11 @@ public class HardwareManager {
         // A: we both don't have dead wheels and aren't using them yet, that's why their purposely lazily loaded..
 
         deadWheelLeftEncoder = new LazyOverflowEncoder(hardwareMap,
-            GlobalConfig.HardwareBindingNames.deadWheelLeftEncoder);
+            GlobalConfig.HardwareBindingNames.deadWheelLeftEncoder, true);
         deadWheelRightEncoder = new LazyOverflowEncoder(hardwareMap,
             GlobalConfig.HardwareBindingNames.deadWheelRightEncoder);
         deadWheelPerpendicularEncoder = new LazyOverflowEncoder(hardwareMap,
-            GlobalConfig.HardwareBindingNames.deadWheelPerpendicularEncoder);
+            GlobalConfig.HardwareBindingNames.deadWheelPerpendicularEncoder, true);
 
         // Arm --------------------------------------------------------------------------
 //        leftClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.leftClawServo);

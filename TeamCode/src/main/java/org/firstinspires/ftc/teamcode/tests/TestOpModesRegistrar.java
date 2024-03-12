@@ -27,6 +27,8 @@ import org.firstinspires.ftc.teamcode.common.HardwareManager;
 import org.firstinspires.ftc.teamcode.common.hardware.MecanumDrive;
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.MecanumLocalizer;
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.ThreeWheelLocalizer;
+import org.firstinspires.ftc.teamcode.tests.debug.DriveStraightDebug;
+import org.firstinspires.ftc.teamcode.tests.debug.GamepadDebug;
 import org.firstinspires.ftc.teamcode.tests.debug.VisionProcessorDebug;
 import org.firstinspires.ftc.teamcode.tests.debug.WheelVelocitiesDebug;
 import org.firstinspires.ftc.teamcode.tests.tuning.LocalizationTest;
@@ -54,7 +56,9 @@ public final class TestOpModesRegistrar {
     private static void registerDevelopmentDebugOpModes(OpModeManager opModeManager) {
         String group = "development-debug";
 
-        opModeManager.register(getMetaForClass(WheelVelocitiesDebug.class, group), new WheelVelocitiesDebug());
+        opModeManager.register(getMetaForClass(GamepadDebug.class, group), new GamepadDebug());
+        opModeManager.register(getMetaForClass(DriveStraightDebug.class, group), new DriveStraightDebug());
+//        opModeManager.register(getMetaForClass(WheelVelocitiesDebug.class, group), new WheelVelocitiesDebug());
         opModeManager.register(getMetaForClass(VisionProcessorDebug.class, group), new VisionProcessorDebug());
     }
 

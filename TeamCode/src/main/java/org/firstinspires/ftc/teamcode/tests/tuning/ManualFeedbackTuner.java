@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.common.hardware.localizers.ThreeWheelLocal
 import org.firstinspires.ftc.teamcode.tests.BaseTest;
 
 public class ManualFeedbackTuner extends BaseTest {
-    public static double distance = 64;
+    public static double DISTANCE = 64;
 
     @Override
     public void runOpMode() {
@@ -25,7 +25,7 @@ public class ManualFeedbackTuner extends BaseTest {
         while (opModeIsActive()) {
             Actions.runBlocking(
                 drive.getNewActionBuilder(new Pose2d(0, 0, 0))
-                    .lineToX(distance)
+                    .lineToX(DISTANCE)
                     .lineToX(0)
                     .build()
             );

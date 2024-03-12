@@ -66,12 +66,12 @@ public final class GlobalConfig {
          * <a href="https://rr.brott.dev/docs/v1-0/tuning#lateralpushtest-mecanum--drive-encoders-only">
          *     LateralPushTest
          * </a>. */
-        public static double lateralInchesPerTick = inchesPerTick;
+        public static double lateralInchesPerTick = 0.002089369300709049;
         /** Determined through
          * <a href="https://rr.brott.dev/docs/v1-0/tuning#angularramplogger">
          *  AngularRampLogger
          * </a>. */
-        public static double trackWidthTicks = 0;
+        public static double trackWidthTicks = 5194.412125707776;
 
         //-------------------------------------------------------------------------------
         // Feed-Forward Parameters
@@ -80,11 +80,11 @@ public final class GlobalConfig {
         // (https://rr.brott.dev/docs/v1-0/tuning#manualfeedforwardtuner)
 
         /** Feed forward parameter, In ticks unit */
-        public static double kS = 0;
+        public static double kS = 1.3444260693859178;
         /** Feed forward parameter, In ticks unit */
-        public static double kV = 0;
+        public static double kV = 0.0008067277775175678;
         /** Feed forward parameter, In ticks unit */
-        public static double kA = 0;
+        public static double kA = 0.0002;
 
         //-------------------------------------------------------------------------------
         // Path Profile Parameters
@@ -156,11 +156,11 @@ public final class GlobalConfig {
         public static double inchesPerTick = MecanumDriveConfig.inchesPerTick;
 
         /** y position of the left parallel encoder (in tick units) */
-        public static double leftParallelYTicks = 0.0;
+        public static double leftParallelYTicks = -2760.617679648084;
         /** y position of the right parallel encoder (in tick units) */
-        public static double rightParallelYTicks = 1.0;
+        public static double rightParallelYTicks = 2805.7699093416577;
         /** x position of the perpendicular encoder (in tick units) */
-        public static double perpendicularXTicks = 0.0;
+        public static double perpendicularXTicks = -3199.431500951285;
     }
 
     /** Determines whether Human-Operated TeleOps should not be registered */
