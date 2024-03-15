@@ -34,10 +34,11 @@ public final class GlobalConfig {
 
         public static final String leftClawServo = "ClawLeftS";
         public static final String rightClawServo = "ClawRightS";
+        public static final String clawExtenderServo = "ArmExtenderS";
+        public static final String clawWristServo = "ClawWristS";
         public static final String elbowMotor = "ElbowM";
 
-        public static final String droneLauncherServo = "";
-        public static final String droneLauncherHookServo = "";
+        public static final String droneLauncherHookServo = "DroneLauncherHookS";
 
         public static final String liftMotor = "LiftM";
     }
@@ -118,36 +119,6 @@ public final class GlobalConfig {
         public static double axialVelocityGain = 0;
         public static double lateralVelocityGain = 0;
         public static double headingVelocityGain = 0;
-
-        //-------------------------------------------------------------------------------
-        // Calculated Variables
-        //-------------------------------------------------------------------------------
-
-        public static final MecanumKinematics kinematics =
-            new MecanumKinematics(
-                inchesPerTick * trackWidthTicks,
-                inchesPerTick / lateralInchesPerTick
-            );
-
-        public static final TurnConstraints defaultTurnConstraints =
-            new TurnConstraints(
-                maxAngularVelocity,
-                -maxAngularAcceleration,
-                maxAngularAcceleration
-            );
-
-        public static final VelConstraint defaultVelocityConstraint =
-            new MinVelConstraint(Arrays.asList(
-                // A: Java what is this?
-                kinematics.new WheelVelConstraint(maxWheelVelocity),
-                new AngularVelConstraint(maxAngularVelocity)
-            ));
-
-        public static final AccelConstraint defaultAccelerationConstraint =
-            new ProfileAccelConstraint(
-                minProfileAcceleration,
-                maxProfileAcceleration
-            );
     }
 
     /** Configuration specifically for {@link ThreeWheelLocalizer}*/
@@ -163,6 +134,25 @@ public final class GlobalConfig {
         public static double perpendicularXTicks = -3199.431500951285;
     }
 
+    /** Configuration specifically for the elbow motor */
+    @Config
+    public static final class ElbowMotorConfig {
+        public static double P = 0.031;
+        public static double I = 0.5;
+        public static double D = 1e-5;
+        public static double F = 0;
+
+        public static double initialAngle = 44.425;
+
+        // Assumes elbow is a 60:1 Tetrix motor with a 2:1 gear ratio.
+        public static final double TICK_PER_ANGLE = 1440.0 * 2 / 360.0;
+        public static final double ANGLE_PER_TICK = 1 / TICK_PER_ANGLE;
+    }
+
+
+    // A: We register so much tele-ops that it's kinda confusing. So we have
+    // this to be able to disable specific ones, and have some clarity.
+
     /** Determines whether Human-Operated TeleOps should not be registered */
     public static final boolean DISABLE_OPERATED_OP_MODES = false;
 
@@ -171,4 +161,7 @@ public final class GlobalConfig {
 
     /** Determines whether Debug TeleOps should not be registered */
     public static final boolean DISABLE_DEBUG_OP_MODES = false;
+
+    /** Determines whether Hardware tuning op modes should not be registered */
+    public static final boolean DISABLE_HARDWARE_TUNING_OP_MODES = false;
 }

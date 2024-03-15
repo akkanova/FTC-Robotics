@@ -1,34 +1,50 @@
 package org.firstinspires.ftc.teamcode.common.hardware;
 
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.MecanumDriveConfig.inchesPerTick;
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.MecanumDriveConfig.lateralInchesPerTick;
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.MecanumDriveConfig.maxAngularAcceleration;
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.MecanumDriveConfig.maxAngularVelocity;
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.MecanumDriveConfig.maxProfileAcceleration;
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.MecanumDriveConfig.maxWheelVelocity;
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.MecanumDriveConfig.minProfileAcceleration;
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.MecanumDriveConfig.trackWidthTicks;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.AccelConstraint;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Actions;
+import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.DualNum;
 import com.acmerobotics.roadrunner.HolonomicController;
 import com.acmerobotics.roadrunner.MecanumKinematics;
+import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.MotorFeedforward;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Pose2dDual;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.PoseVelocity2dDual;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.ProfileParams;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Time;
 import com.acmerobotics.roadrunner.TimeTrajectory;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TrajectoryBuilderParams;
+import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Twist2dDual;
+import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.FlightRecorder;
 import com.acmerobotics.roadrunner.TimeTurn;
 
 import org.firstinspires.ftc.teamcode.common.GlobalConfig;
 import org.firstinspires.ftc.teamcode.common.HardwareManager;
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.Localizer;
-import org.firstinspires.ftc.teamcode.common.hardware.localizers.MecanumLocalizer;
-import org.firstinspires.ftc.teamcode.common.hardware.localizers.ThreeWheelLocalizer;
 import org.firstinspires.ftc.teamcode.common.misc.DashboardUtils;
 import org.firstinspires.ftc.teamcode.common.misc.RoadRunnerLog;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -47,6 +63,32 @@ public final class MecanumDrive {
 
     public final Localizer localizer;
     public Pose2d currentPose;
+
+    public final MecanumKinematics kinematics =
+        new MecanumKinematics(
+            inchesPerTick * trackWidthTicks,
+            inchesPerTick / lateralInchesPerTick
+        );
+
+    public final TurnConstraints defaultTurnConstraints =
+        new TurnConstraints(
+            maxAngularVelocity,
+            -maxAngularAcceleration,
+            maxAngularAcceleration
+        );
+
+    public final VelConstraint defaultVelocityConstraint =
+        new MinVelConstraint(Arrays.asList(
+                // A: Java what is this?
+            kinematics.new WheelVelConstraint(maxWheelVelocity),
+            new AngularVelConstraint(maxAngularVelocity)
+        ));
+
+    public static final AccelConstraint defaultAccelerationConstraint =
+        new ProfileAccelConstraint(
+            minProfileAcceleration,
+            maxProfileAcceleration
+        );
 
     /**
      * Create an instance of MecanumDrive that utilizes provided localizer.
@@ -73,7 +115,7 @@ public final class MecanumDrive {
      * encoders for localization.
      * */
     public MecanumDrive(HardwareManager hardwareManager, Pose2d initialPose) {
-        this(hardwareManager, initialPose, new ThreeWheelLocalizer(hardwareManager));
+        this(hardwareManager);
     }
 
     /**
@@ -125,11 +167,16 @@ public final class MecanumDrive {
         return new TrajectoryActionBuilder(
             TurnAction::new,
             FollowTrajectoryAction::new,
-            initialPose, 1e-6, 0,
-            GlobalConfig.MecanumDriveConfig.defaultTurnConstraints,
-            GlobalConfig.MecanumDriveConfig.defaultVelocityConstraint,
-            GlobalConfig.MecanumDriveConfig.defaultAccelerationConstraint,
-            0.25, 0.1
+            new TrajectoryBuilderParams(
+                1e-6,
+                new ProfileParams(
+                    0.25, 0.1, 1e-2
+                )
+            ),
+            initialPose, 0.0,
+            defaultTurnConstraints,
+            defaultVelocityConstraint,
+            defaultAccelerationConstraint
         );
     }
 
@@ -206,14 +253,13 @@ public final class MecanumDrive {
             ).compute(txWorldTarget, currentPose, robotVelRobot);
             logger.driveCommandWriter.write(new RoadRunnerLog.DriveCommandLogMessage(command));
 
-            MecanumKinematics.WheelVelocities<Time> wheelVelocities =
-                    GlobalConfig.MecanumDriveConfig.kinematics.inverse(command);
+            MecanumKinematics.WheelVelocities<Time> wheelVelocities = kinematics.inverse(command);
 
             double voltage = hardwareManager.batteryVoltageSensor.getVoltage();
             final MotorFeedforward feedforward = new MotorFeedforward(
                     GlobalConfig.MecanumDriveConfig.kS,
-                    GlobalConfig.MecanumDriveConfig.kV / GlobalConfig.MecanumDriveConfig.inchesPerTick,
-                    GlobalConfig.MecanumDriveConfig.kA / GlobalConfig.MecanumDriveConfig.inchesPerTick
+                    GlobalConfig.MecanumDriveConfig.kV / inchesPerTick,
+                    GlobalConfig.MecanumDriveConfig.kA / inchesPerTick
             );
 
             double frontLeftPower  = feedforward.compute(wheelVelocities.leftFront)  / voltage;
@@ -301,14 +347,13 @@ public final class MecanumDrive {
             ).compute(txWorldTarget, currentPose, robotVelRobot);
             logger.driveCommandWriter.write(new RoadRunnerLog.DriveCommandLogMessage(command));
 
-            MecanumKinematics.WheelVelocities<Time> wheelVelocities =
-                GlobalConfig.MecanumDriveConfig.kinematics.inverse(command);
+            MecanumKinematics.WheelVelocities<Time> wheelVelocities = kinematics.inverse(command);
 
             double voltage = hardwareManager.batteryVoltageSensor.getVoltage();
             final MotorFeedforward feedforward = new MotorFeedforward(
                     GlobalConfig.MecanumDriveConfig.kS,
-                    GlobalConfig.MecanumDriveConfig.kV / GlobalConfig.MecanumDriveConfig.inchesPerTick,
-                    GlobalConfig.MecanumDriveConfig.kA / GlobalConfig.MecanumDriveConfig.inchesPerTick
+                    GlobalConfig.MecanumDriveConfig.kV / inchesPerTick,
+                    GlobalConfig.MecanumDriveConfig.kA / inchesPerTick
             );
 
             double frontLeftPower = feedforward.compute(wheelVelocities.leftFront) / voltage;

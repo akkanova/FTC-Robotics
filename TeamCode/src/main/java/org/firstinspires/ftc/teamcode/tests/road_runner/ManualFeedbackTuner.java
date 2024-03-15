@@ -1,9 +1,11 @@
-package org.firstinspires.ftc.teamcode.tests.tuning;
+package org.firstinspires.ftc.teamcode.tests.road_runner;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
 import org.firstinspires.ftc.teamcode.common.GlobalConfig;
+import org.firstinspires.ftc.teamcode.common.HardwareManager;
+import org.firstinspires.ftc.teamcode.common.hardware.MecanumDrive;
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.ThreeWheelLocalizer;
 import org.firstinspires.ftc.teamcode.tests.BaseTest;
 
@@ -12,7 +14,7 @@ public class ManualFeedbackTuner extends BaseTest {
 
     @Override
     public void runOpMode() {
-        initializeBaseDrive();
+        MecanumDrive drive = new MecanumDrive(new HardwareManager(hardwareMap), new Pose2d(0, 0, 0));
         waitForStart();
 
         if (drive.localizer instanceof ThreeWheelLocalizer &&

@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.common.hardware.LazyOverflowEncoder;
+import org.firstinspires.ftc.teamcode.common.hardware.PIDFController;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -48,24 +49,49 @@ public class HardwareManager {
     // Dead Wheels
     //-----------------------------------------------------------------------------------
 
-    public final LazyOverflowEncoder deadWheelLeftEncoder;
-    public final LazyOverflowEncoder deadWheelRightEncoder;
-    public final LazyOverflowEncoder deadWheelPerpendicularEncoder;
+    public final LazyOverflowEncoder deadWheelLeftEncoder; // Cypher MAX Through Bore Encoder
+    public final LazyOverflowEncoder deadWheelRightEncoder; // Cypher MAX Through Bore Encoder
+    public final LazyOverflowEncoder deadWheelPerpendicularEncoder; // Cypher MAX Through Bore Encoder
 
     //-----------------------------------------------------------------------------------
     // Arm
     //-----------------------------------------------------------------------------------
 
-//    public final ServoImplEx leftClawServo;  // Studica Multi-Mode Smart Servo
-//    public final ServoImplEx rightClawServo; // Studica Multi-Mode Smart Servo
+    public final ServoImplEx leftClawServo;  // Studica Multi-Mode Smart Servo
+    public final ServoImplEx rightClawServo; // Studica Multi-Mode Smart Servo
+//    public final ServoImplEx armExtensionServo; // Vex 2-Wire Motor
     public final DcMotorEx elbowMotor;    // TETRIX TorqueNADO 40:1
+    private PIDFController elbowPIDFController;
+
+    /**
+     * Usesa a dedicated lazy loaded controller, to determine the required
+     * amount of power to hold it accurately to that specific degree.
+     * @param targetAngle the target angle of the arm from it's stationary base.
+     *  */
+    public void holdElbowAt(double targetAngle) {
+        if (elbowPIDFController == null)
+            elbowPIDFController = new PIDFController(
+                    GlobalConfig.ElbowMotorConfig.P,
+                    GlobalConfig.ElbowMotorConfig.I,
+                    GlobalConfig.ElbowMotorConfig.D
+            );
+
+        int currentMotorTicks = elbowMotor.getCurrentPosition();
+        double targetTicks = (targetAngle - GlobalConfig.ElbowMotorConfig.initialAngle) *
+                GlobalConfig.ElbowMotorConfig.TICK_PER_ANGLE;
+
+        // To Compensate for Gravity
+        double ff  = Math.cos(Math.toRadians(targetAngle)) * GlobalConfig.ElbowMotorConfig.F;
+        double pid = elbowPIDFController.calculate(currentMotorTicks, targetTicks);
+
+        elbowMotor.setPower(pid + ff);
+    }
 
     //-----------------------------------------------------------------------------------
     // Drone Launcher
     //-----------------------------------------------------------------------------------
 
-    // public final ServoImplEx droneLauncherBase;
-    // public final ServoImplEx droneLauncherHook;
+     public final ServoImplEx droneLauncherHook;  // Studica Multi-Mode Smart Servo
 
     //-----------------------------------------------------------------------------------
     // Lift
@@ -111,7 +137,11 @@ public class HardwareManager {
         getBackRightWheelMotor().setDirection(DcMotorSimple.Direction.FORWARD);
 
         // More Info : https://gm0.org/en/latest/docs/software/adv-control-system/sdk-motors.html
-        doForAllWheels((motor) -> motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
+        doForAllWheels((motor) -> {
+            // @todo Remove if using the MecanumLocalizer..
+            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        });
 
         // Dead Wheels ------------------------------------------------------------------
         // A: we both don't have dead wheels and aren't using them yet, that's why their purposely lazily loaded..
@@ -124,10 +154,10 @@ public class HardwareManager {
             GlobalConfig.HardwareBindingNames.deadWheelPerpendicularEncoder, true);
 
         // Arm --------------------------------------------------------------------------
-//        leftClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.leftClawServo);
-//        rightClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.rightClawServo);
-//        leftClawServo.setDirection(Servo.Direction.REVERSE);
-//        rightClawServo.setDirection(Servo.Direction.FORWARD);
+        leftClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.leftClawServo);
+        rightClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.rightClawServo);
+        leftClawServo.setDirection(Servo.Direction.REVERSE);
+        rightClawServo.setDirection(Servo.Direction.FORWARD);
 
         elbowMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.elbowMotor);
         elbowMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -137,10 +167,9 @@ public class HardwareManager {
         elbowMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Drone Launcher ---------------------------------------------------------------
-        //droneLauncherBase = hardwareMap.get(ServoImplEx.class, "LauncherBaseS");
-        //droneLauncherHook = hardwareMap.get(ServoImplEx.class, "LauncherHookS");
-        //droneLauncherBase.setDirection(Servo.Direction.FORWARD);
-        //droneLauncherHook.setDirection(Servo.Direction.REVERSE);
+        droneLauncherHook = hardwareMap.get(ServoImplEx.class,
+            GlobalConfig.HardwareBindingNames.droneLauncherHookServo);
+        droneLauncherHook.setDirection(Servo.Direction.REVERSE);
 
         // Lift -------------------------------------------------------------------------
 //        liftMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.liftMotor);

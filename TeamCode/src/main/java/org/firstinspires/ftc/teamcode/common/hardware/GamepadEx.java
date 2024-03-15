@@ -52,6 +52,7 @@ public class GamepadEx {
 
     private final HashMap<Button, Runnable> onceButtonClickedListeners;
     private final HashMap<Button, Runnable> onButtonClickListeners;
+    private final HashMap<Button, Runnable> onButtonUnClickListeners;
     private final HashMap<Button, ButtonState> buttonStates;
     private final float triggerThreshold;
     private final Gamepad gamepad;
@@ -64,6 +65,7 @@ public class GamepadEx {
     public GamepadEx(Gamepad gamepad, float triggerThreshold) {
         this.onceButtonClickedListeners = new HashMap<>();
         this.onButtonClickListeners = new HashMap<>();
+        this.onButtonUnClickListeners = new HashMap<>();
         this.triggerThreshold = triggerThreshold;
         this.buttonStates = new HashMap<>();
         this.gamepad = gamepad;
@@ -93,15 +95,29 @@ public class GamepadEx {
         for (ButtonState state : this.buttonStates.values()) {
             state.update();
             if (!state.previous && state.current) {
-                if (this.onceButtonClickedListeners.containsKey(state.button)) {
-                    Objects.requireNonNull(this.onceButtonClickedListeners.get(state.button)).run();
-                    this.onceButtonClickedListeners.remove(state.button);
-                }
+                getListenerAndRun(this.onceButtonClickedListeners, state.button, true);
+                getListenerAndRun(this.onButtonClickListeners, state.button, false);
 
-                if (this.onButtonClickListeners.containsKey(state.button)) {
-                    Objects.requireNonNull(this.onButtonClickListeners.get(state.button)).run();
-                }
+            } else if (state.previous && !state.current) {
+                getListenerAndRun(this.onButtonUnClickListeners, state.button, false);
             }
+        }
+    }
+
+    /**
+     * Helper function to retrieve the listener for a button, from the provided
+     * listeners map, and to also run it, if it exists.
+     */
+    private static void getListenerAndRun(
+            HashMap<Button, Runnable> listenersMap,
+            Button button,
+            boolean runOnlyOnce
+    ) {
+        Runnable listener = listenersMap.get(button);
+        if (listener != null) {
+            listener.run();
+            if (runOnlyOnce)
+                listenersMap.remove(button);
         }
     }
 
@@ -161,10 +177,19 @@ public class GamepadEx {
         this.onButtonClickListeners.put(button, runnable);
     }
 
+    /**
+     * Adds once button un-click / de-press listener; listens for a change of button state
+     * from one that was pressed to a one that is not pressed.
+     */
+    public void onButtonUnClicked(Button button, Runnable runnanble) {
+        this.onButtonUnClickListeners.put(button, runnanble);
+    }
+
     /** Removes all "once" and "on" button click listeners */
     public void removeAllListeners() {
         this.onButtonClickListeners.clear();
         this.onceButtonClickedListeners.clear();
+        this.onButtonUnClickListeners.clear();
     }
 
     //-----------------------------------------------------------------------------------

@@ -20,6 +20,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
+import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.common.GlobalConfig;
@@ -29,11 +30,14 @@ import org.firstinspires.ftc.teamcode.common.hardware.localizers.MecanumLocalize
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.ThreeWheelLocalizer;
 import org.firstinspires.ftc.teamcode.tests.debug.DriveStraightDebug;
 import org.firstinspires.ftc.teamcode.tests.debug.GamepadDebug;
+import org.firstinspires.ftc.teamcode.tests.debug.RecordGamepad;
 import org.firstinspires.ftc.teamcode.tests.debug.VisionProcessorDebug;
-import org.firstinspires.ftc.teamcode.tests.tuning.ElbowFeedForwardTest;
-import org.firstinspires.ftc.teamcode.tests.tuning.LocalizationTest;
-import org.firstinspires.ftc.teamcode.tests.tuning.ManualFeedbackTuner;
-import org.firstinspires.ftc.teamcode.tests.tuning.SplineTest;
+import org.firstinspires.ftc.teamcode.tests.road_runner.LocalizationTest;
+import org.firstinspires.ftc.teamcode.tests.road_runner.ManualFeedbackTuner;
+import org.firstinspires.ftc.teamcode.tests.road_runner.SplineTest;
+import org.firstinspires.ftc.teamcode.tests.tuning.ElbowPIDFTuner;
+import org.firstinspires.ftc.teamcode.tests.tuning.ElbowPositionFinder;
+import org.firstinspires.ftc.teamcode.tests.tuning.ServoPositionTuner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +50,10 @@ public final class TestOpModesRegistrar {
     @OpModeRegistrar
     public static void register(OpModeManager opModeManager) {
         if (!GlobalConfig.DISABLE_ROAD_RUNNER_TUNING)
-            registerTuningOpModes(opModeManager);
+            registerRoadRunnerTuningOpModes(opModeManager);
+
+        if (!GlobalConfig.DISABLE_HARDWARE_TUNING_OP_MODES)
+            registerHardwareTuningOpModes(opModeManager);
 
         if (!GlobalConfig.DISABLE_DEBUG_OP_MODES)
             registerDevelopmentDebugOpModes(opModeManager);
@@ -56,10 +63,23 @@ public final class TestOpModesRegistrar {
     private static void registerDevelopmentDebugOpModes(OpModeManager opModeManager) {
         String group = "development-debug";
 
-        opModeManager.register(getMetaForClass(GamepadDebug.class, group), new GamepadDebug());
         opModeManager.register(getMetaForClass(DriveStraightDebug.class, group), new DriveStraightDebug());
-//        opModeManager.register(getMetaForClass(WheelVelocitiesDebug.class, group), new WheelVelocitiesDebug());
         opModeManager.register(getMetaForClass(VisionProcessorDebug.class, group), new VisionProcessorDebug());
+        opModeManager.register(getMetaForClass(RecordGamepad.class, group), new RecordGamepad());
+        opModeManager.register(getMetaForClass(GamepadDebug.class, group), new GamepadDebug());
+    }
+
+    /** Tuning Op Modes designed for general hardware calibration */
+    private static void registerHardwareTuningOpModes(OpModeManager opModeManager) {
+        String group = "hardware-tuning";
+
+        opModeManager.register(getMetaForClass(ElbowPIDFTuner.class, group), new ElbowPIDFTuner());
+        opModeManager.register(getMetaForClass(ElbowPositionFinder.class, group), new ElbowPositionFinder());
+        opModeManager.register(getMetaForClass(ServoPositionTuner.class, group), new ServoPositionTuner());
+
+        allowConfigurationWithFtcDashboard(
+            ServoPositionTuner.class
+        );
     }
 
     /**
@@ -67,7 +87,7 @@ public final class TestOpModesRegistrar {
      *     Extracted from Road Runner quickstart  - TuningOpModes.java
      * </a>
      */
-    private static void registerTuningOpModes(OpModeManager opModeManager) {
+    private static void registerRoadRunnerTuningOpModes(OpModeManager opModeManager) {
         DriveViewFactory driveViewFactory = hardwareMap -> {
             HardwareManager hardwareManager = new HardwareManager(hardwareMap);
             MecanumDrive mecanumDrive = new MecanumDrive(hardwareManager, new Pose2d(0, 0, 0));
@@ -93,8 +113,6 @@ public final class TestOpModesRegistrar {
             } else {
                 throw new RuntimeException("Unsupported localizer " + mecanumDrive.localizer.getClass().getName());
             }
-
-            // TODO : add support for a three wheel localizer
 
             return new DriveView(
                 DriveType.MECANUM,
@@ -123,7 +141,7 @@ public final class TestOpModesRegistrar {
             );
         };
 
-        String group = "tuning";
+        String group = "road-runner-tuning";
 
         opModeManager.register(getMetaForClass(AngularRampLogger.class, group), new AngularRampLogger(driveViewFactory));
         opModeManager.register(getMetaForClass(ForwardPushTest.class, group), new ForwardPushTest(driveViewFactory));
@@ -134,39 +152,47 @@ public final class TestOpModesRegistrar {
         opModeManager.register(getMetaForClass(MecanumMotorDirectionDebugger.class, group), new MecanumMotorDirectionDebugger(driveViewFactory));
         opModeManager.register(getMetaForClass(DeadWheelDirectionDebugger.class, group), new DeadWheelDirectionDebugger(driveViewFactory));
 
-        opModeManager.register(getMetaForClass(ManualFeedbackTuner.class, group), new ManualFeedbackTuner());
+        // All the road runner tuning op modes not included in the library
+            opModeManager.register(getMetaForClass(ManualFeedbackTuner.class, group), new ManualFeedbackTuner());
         opModeManager.register(getMetaForClass(SplineTest.class, group), new SplineTest());
         opModeManager.register(getMetaForClass(LocalizationTest.class, group), new LocalizationTest());
 
-        // A : Not necessarily a Road Runner Tuning Op Mode
-        opModeManager.register(getMetaForClass(ElbowFeedForwardTest.class, group), new ElbowFeedForwardTest());
-
         // Allow them to be configurable in FTC-Dashboard
-        FtcDashboard
-            .getInstance()
-            .withConfigRoot((configRoot) -> {
-                for (Class<?> clazz : Arrays.asList(
-                    AngularRampLogger.class,
-                    ForwardRampLogger.class,
-                    LateralRampLogger.class,
-                    ManualFeedbackTuner.class,
-                    ManualFeedforwardTuner.class,
-                    MecanumMotorDirectionDebugger.class,
-                    ElbowFeedForwardTest.class
-                )) {
-                    configRoot.putVariable(
-                        clazz.getSimpleName(),
-                        ReflectionConfig.createVariableFromClass(clazz)
-                    );
-                }
-            });
+        allowConfigurationWithFtcDashboard(
+            LocalizationTest.class,
+            AngularRampLogger.class,
+            ForwardRampLogger.class,
+            LateralRampLogger.class,
+            ManualFeedbackTuner.class,
+            ManualFeedforwardTuner.class,
+            MecanumMotorDirectionDebugger.class
+        );
     }
 
+    /** Add additional description and info needed by {@link  OpModeManager} */
     private static OpModeMeta getMetaForClass(Class<? extends OpMode> opModeClass, String group) {
         return new OpModeMeta.Builder()
             .setName(opModeClass.getSimpleName())
             .setFlavor(OpModeMeta.Flavor.TELEOP)
             .setGroup(group)
             .build();
+    }
+
+    /**
+     * Allow the inputted op modes to be configurable using FTC-Dashboard. This way allows
+     * them to be dynamically added in, as opposed to using the {@link Config} class attribute.
+     * */
+    @SafeVarargs
+    private static void allowConfigurationWithFtcDashboard(Class<? extends OpMode> ...opModeClasses) {
+        FtcDashboard
+            .getInstance()
+            .withConfigRoot((configRoot) -> {
+                for (Class<? extends  OpMode> clazz : opModeClasses) {
+                    configRoot.putVariable(
+                        clazz.getSimpleName(),
+                        ReflectionConfig.createVariableFromClass(clazz)
+                    );
+                }
+            });
     }
 }

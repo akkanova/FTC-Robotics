@@ -11,12 +11,13 @@ import org.firstinspires.ftc.teamcode.tests.BaseTest;
  * */
 public class VisionProcessorDebug extends BaseTest {
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
+        initializeDashboardTelemetry();
         ComputerVision<?> processor = ComputerVision.createDefaultAprilTagCV(hardwareMap, true);
+
         telemetry.addLine("View preview using Driver Hub or FTC-Dashboard.");
         telemetry.update();
 
         waitForStart();
-        // Preview only works in the Init-loop
     }
 }

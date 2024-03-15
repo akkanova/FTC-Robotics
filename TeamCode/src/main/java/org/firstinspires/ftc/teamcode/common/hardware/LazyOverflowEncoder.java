@@ -16,7 +16,10 @@ public class LazyOverflowEncoder extends Lazy<OverflowEncoder> {
         this(hardwareMap, deviceName, false);
     }
 
-    /** Create an instance with the ability to flip the direction */
+    /**
+     * Create an instance with a corrected direction.
+     * Do note that this resets encoder recoded position.
+     */
     public LazyOverflowEncoder(
         HardwareMap hardwareMap,
         String deviceName,
@@ -28,11 +31,6 @@ public class LazyOverflowEncoder extends Lazy<OverflowEncoder> {
 
             if (flipDirection)
                 encoder.setDirection(DcMotorSimple.Direction.REVERSE);
-
-            // Reset Positions
-            DcMotor.RunMode mode = motorEx.getMode();
-            motorEx.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motorEx.setMode(mode);
 
             return encoder;
         });

@@ -1,9 +1,10 @@
-package org.firstinspires.ftc.teamcode.tests.tuning;
+package org.firstinspires.ftc.teamcode.tests.road_runner;
 
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.acmerobotics.roadrunner.Pose2d;
 
+import org.firstinspires.ftc.teamcode.common.hardware.MecanumDrive;
 import org.firstinspires.ftc.teamcode.tests.BaseTest;
 
 /**
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.teamcode.tests.BaseTest;
 public class SplineTest extends BaseTest {
     @Override
     public void runOpMode() {
-        initializeBaseDrive();
+        MecanumDrive drive = getMecanumDrive();
         waitForStart();
 
         Actions.runBlocking(

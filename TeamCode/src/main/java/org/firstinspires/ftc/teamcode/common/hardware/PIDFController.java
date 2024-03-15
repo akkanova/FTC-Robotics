@@ -196,7 +196,9 @@ public class PIDFController {
         prevErrorVal = errorVal_p;
 
         double currentTimeStamp = (double) System.nanoTime() / 1E9;
-        if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
+        if (lastTimeStamp == 0)
+            lastTimeStamp = currentTimeStamp;
+
         period = currentTimeStamp - lastTimeStamp;
         lastTimeStamp = currentTimeStamp;
 

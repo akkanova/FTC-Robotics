@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.common.hardware.localizers;
 
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.MecanumDriveConfig.inchesPerTick;
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.MecanumDriveConfig.lateralInchesPerTick;
+import static org.firstinspires.ftc.teamcode.common.GlobalConfig.MecanumDriveConfig.trackWidthTicks;
+
 import com.acmerobotics.roadrunner.DualNum;
 import com.acmerobotics.roadrunner.MecanumKinematics;
 import com.acmerobotics.roadrunner.Rotation2d;
@@ -16,7 +20,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.common.GlobalConfig;
 import org.firstinspires.ftc.teamcode.common.HardwareManager;
 import org.firstinspires.ftc.teamcode.common.misc.RoadRunnerLog;
 
@@ -44,6 +47,13 @@ public class MecanumLocalizer implements Localizer {
     private boolean initialized;
 
     private final IMU imu;
+
+
+    public final MecanumKinematics kinematics =
+        new MecanumKinematics(
+            inchesPerTick * trackWidthTicks,
+            inchesPerTick / lateralInchesPerTick
+        );
 
     public MecanumLocalizer(HardwareManager hardwareManager) {
         frontLeftWheelEncoder  = new OverflowEncoder(new RawEncoder(hardwareManager.getFrontLeftWheelMotor()));
@@ -96,24 +106,24 @@ public class MecanumLocalizer implements Localizer {
         }
 
         double headingDelta = heading.minus(lastHeading);
-        Twist2dDual<Time> twist = GlobalConfig.MecanumDriveConfig.kinematics.forward(
+        Twist2dDual<Time> twist = kinematics.forward(
             new MecanumKinematics.WheelIncrements<>(
                 new DualNum<Time>(new double[] {
                     (frontLeftPosVel.position - lastFrontLeftPosition),
                     frontLeftPosVel.velocity,
-                }).times(GlobalConfig.MecanumDriveConfig.inchesPerTick),
+                }).times(inchesPerTick),
                 new DualNum<Time>(new double[] {
                     (backLeftPosVel.position - lastBackLeftPosition),
                     backLeftPosVel.velocity,
-                }).times(GlobalConfig.MecanumDriveConfig.inchesPerTick),
+                }).times(inchesPerTick),
                 new DualNum<Time>(new double[] {
                     (backRightPosVel.position - lastBackRightPosition),
                     backRightPosVel.velocity,
-                }).times(GlobalConfig.MecanumDriveConfig.inchesPerTick),
+                }).times(inchesPerTick),
                 new DualNum<Time>(new double[] {
                     (frontRightPosVel.position - lastFrontRightPosition),
                     frontRightPosVel.velocity,
-                }).times(GlobalConfig.MecanumDriveConfig.inchesPerTick)
+                }).times(inchesPerTick)
             )
         );
 

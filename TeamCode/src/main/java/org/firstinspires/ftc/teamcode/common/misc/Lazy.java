@@ -28,4 +28,8 @@ public class Lazy<T> {
 
         return obj;
     }
+
+    public synchronized boolean isInitialized() {
+        return obj != null;
+    }
 }
