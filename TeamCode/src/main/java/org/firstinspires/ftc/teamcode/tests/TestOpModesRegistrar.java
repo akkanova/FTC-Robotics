@@ -30,7 +30,7 @@ import org.firstinspires.ftc.teamcode.common.hardware.localizers.ThreeWheelLocal
 import org.firstinspires.ftc.teamcode.tests.debug.DriveStraightDebug;
 import org.firstinspires.ftc.teamcode.tests.debug.GamepadDebug;
 import org.firstinspires.ftc.teamcode.tests.debug.VisionProcessorDebug;
-import org.firstinspires.ftc.teamcode.tests.debug.WheelVelocitiesDebug;
+import org.firstinspires.ftc.teamcode.tests.tuning.ElbowFeedForwardTest;
 import org.firstinspires.ftc.teamcode.tests.tuning.LocalizationTest;
 import org.firstinspires.ftc.teamcode.tests.tuning.ManualFeedbackTuner;
 import org.firstinspires.ftc.teamcode.tests.tuning.SplineTest;
@@ -46,7 +46,7 @@ public final class TestOpModesRegistrar {
     @OpModeRegistrar
     public static void register(OpModeManager opModeManager) {
         if (!GlobalConfig.DISABLE_ROAD_RUNNER_TUNING)
-            registerRoadRunnerTuningOpModes(opModeManager);
+            registerTuningOpModes(opModeManager);
 
         if (!GlobalConfig.DISABLE_DEBUG_OP_MODES)
             registerDevelopmentDebugOpModes(opModeManager);
@@ -67,7 +67,7 @@ public final class TestOpModesRegistrar {
      *     Extracted from Road Runner quickstart  - TuningOpModes.java
      * </a>
      */
-    private static void registerRoadRunnerTuningOpModes(OpModeManager opModeManager) {
+    private static void registerTuningOpModes(OpModeManager opModeManager) {
         DriveViewFactory driveViewFactory = hardwareMap -> {
             HardwareManager hardwareManager = new HardwareManager(hardwareMap);
             MecanumDrive mecanumDrive = new MecanumDrive(hardwareManager, new Pose2d(0, 0, 0));
@@ -123,7 +123,7 @@ public final class TestOpModesRegistrar {
             );
         };
 
-        String group = "road-runner-tuning";
+        String group = "tuning";
 
         opModeManager.register(getMetaForClass(AngularRampLogger.class, group), new AngularRampLogger(driveViewFactory));
         opModeManager.register(getMetaForClass(ForwardPushTest.class, group), new ForwardPushTest(driveViewFactory));
@@ -134,10 +134,12 @@ public final class TestOpModesRegistrar {
         opModeManager.register(getMetaForClass(MecanumMotorDirectionDebugger.class, group), new MecanumMotorDirectionDebugger(driveViewFactory));
         opModeManager.register(getMetaForClass(DeadWheelDirectionDebugger.class, group), new DeadWheelDirectionDebugger(driveViewFactory));
 
-        // TODO : add later ..
         opModeManager.register(getMetaForClass(ManualFeedbackTuner.class, group), new ManualFeedbackTuner());
         opModeManager.register(getMetaForClass(SplineTest.class, group), new SplineTest());
         opModeManager.register(getMetaForClass(LocalizationTest.class, group), new LocalizationTest());
+
+        // A : Not necessarily a Road Runner Tuning Op Mode
+        opModeManager.register(getMetaForClass(ElbowFeedForwardTest.class, group), new ElbowFeedForwardTest());
 
         // Allow them to be configurable in FTC-Dashboard
         FtcDashboard
@@ -149,7 +151,8 @@ public final class TestOpModesRegistrar {
                     LateralRampLogger.class,
                     ManualFeedbackTuner.class,
                     ManualFeedforwardTuner.class,
-                    MecanumMotorDirectionDebugger.class
+                    MecanumMotorDirectionDebugger.class,
+                    ElbowFeedForwardTest.class
                 )) {
                     configRoot.putVariable(
                         clazz.getSimpleName(),

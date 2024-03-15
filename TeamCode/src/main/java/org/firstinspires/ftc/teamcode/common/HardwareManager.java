@@ -58,7 +58,7 @@ public class HardwareManager {
 
 //    public final ServoImplEx leftClawServo;  // Studica Multi-Mode Smart Servo
 //    public final ServoImplEx rightClawServo; // Studica Multi-Mode Smart Servo
-//    public final DcMotorEx elbowMotor;    // TETRIX TorqueNADO 40:1
+    public final DcMotorEx elbowMotor;    // TETRIX TorqueNADO 40:1
 
     //-----------------------------------------------------------------------------------
     // Drone Launcher
@@ -128,10 +128,13 @@ public class HardwareManager {
 //        rightClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.rightClawServo);
 //        leftClawServo.setDirection(Servo.Direction.REVERSE);
 //        rightClawServo.setDirection(Servo.Direction.FORWARD);
-//
-//        elbowMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.elbowMotor);
-//        elbowMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-//        elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        elbowMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.elbowMotor);
+        elbowMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        elbowMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elbowMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Drone Launcher ---------------------------------------------------------------
         //droneLauncherBase = hardwareMap.get(ServoImplEx.class, "LauncherBaseS");

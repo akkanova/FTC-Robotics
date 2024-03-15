@@ -7,20 +7,24 @@ import org.firstinspires.ftc.teamcode.common.hardware.GamepadEx;
 public class GamepadDebug extends BaseTest {
     @Override
     public void runOpMode() {
+        initializeBaseDrive();
         waitForStart();
         GamepadEx gamepadEx = new GamepadEx(gamepad1);
 
-        gamepadEx.onceButtonClicked(GamepadEx.Button.A, () -> {
-            telemetry.addLine("Hello World");
-            telemetry.update();
-        });
-
-        gamepadEx.onButtonClick(GamepadEx.Button.B, () -> {
-            telemetry.addLine("sss");
-            telemetry.update();
-        });
+//        gamepadEx.onceButtonClicked(GamepadEx.Button.A, () -> {
+//            telemetry.addLine("Hello World");
+//            telemetry.update();
+//        });
+//
+//        gamepadEx.onButtonClick(GamepadEx.Button.B, () -> {
+//            telemetry.addLine("sss");
+//            telemetry.update();
+//        });
 
         while(opModeIsActive()) {
+            hardwareManager.elbowMotor.setPower(-gamepad1.left_stick_y);
+            telemetry.addData("POS",hardwareManager.elbowMotor.getCurrentPosition());
+            telemetry.update();
             gamepadEx.sync();
         }
     }

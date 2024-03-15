@@ -11,7 +11,7 @@ import java.util.Objects;
  * An extension of {@link Gamepad}. Inspired by
  * <a href="https://github.com/FTCLib/FTCLib/blob/master/core/src/main/java/com/arcrobotics/ftclib/gamepad/GamepadEx.java">
  *      FTClib's GamepadEx.java
- * </a>.<br>
+ * </a>.
  * In a similar fashion, it does not support PS4 controllers.
  * */
 public class GamepadEx {
@@ -132,6 +132,11 @@ public class GamepadEx {
     /** @return {@code gamepad.right_stick_y} */
     public float getRightY() {
         return gamepad.right_stick_y;
+    }
+
+    /** @return whether that current button is pressed */
+    public boolean isPressed(Button button) {
+        return Objects.requireNonNull(this.buttonStates.get(button)).current;
     }
 
     //-------------------------------------------------------------------------------
