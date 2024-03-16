@@ -30,7 +30,6 @@ import org.firstinspires.ftc.teamcode.common.hardware.localizers.MecanumLocalize
 import org.firstinspires.ftc.teamcode.common.hardware.localizers.ThreeWheelLocalizer;
 import org.firstinspires.ftc.teamcode.tests.debug.DriveStraightDebug;
 import org.firstinspires.ftc.teamcode.tests.debug.GamepadDebug;
-import org.firstinspires.ftc.teamcode.tests.debug.RecordGamepad;
 import org.firstinspires.ftc.teamcode.tests.debug.VisionProcessorDebug;
 import org.firstinspires.ftc.teamcode.tests.road_runner.LocalizationTest;
 import org.firstinspires.ftc.teamcode.tests.road_runner.ManualFeedbackTuner;
@@ -65,7 +64,6 @@ public final class TestOpModesRegistrar {
 
         opModeManager.register(getMetaForClass(DriveStraightDebug.class, group), new DriveStraightDebug());
         opModeManager.register(getMetaForClass(VisionProcessorDebug.class, group), new VisionProcessorDebug());
-        opModeManager.register(getMetaForClass(RecordGamepad.class, group), new RecordGamepad());
         opModeManager.register(getMetaForClass(GamepadDebug.class, group), new GamepadDebug());
     }
 
@@ -153,9 +151,9 @@ public final class TestOpModesRegistrar {
         opModeManager.register(getMetaForClass(DeadWheelDirectionDebugger.class, group), new DeadWheelDirectionDebugger(driveViewFactory));
 
         // All the road runner tuning op modes not included in the library
-            opModeManager.register(getMetaForClass(ManualFeedbackTuner.class, group), new ManualFeedbackTuner());
-        opModeManager.register(getMetaForClass(SplineTest.class, group), new SplineTest());
-        opModeManager.register(getMetaForClass(LocalizationTest.class, group), new LocalizationTest());
+        opModeManager.register(getMetaForClass(ManualFeedbackTuner.class, group), ManualFeedbackTuner.class);
+        opModeManager.register(getMetaForClass(SplineTest.class, group), SplineTest.class);
+        opModeManager.register(getMetaForClass(LocalizationTest.class, group), LocalizationTest.class);
 
         // Allow them to be configurable in FTC-Dashboard
         allowConfigurationWithFtcDashboard(

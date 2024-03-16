@@ -13,4 +13,15 @@ public final class Misc {
         if (nullableObject != null)
             callback.accept(nullableObject);
     }
+
+    /**
+     * y = x^2, plot in Desmos. Where x is your gamepad stick input and y
+     *  is your target power
+     *  */
+    public static double easeWithSquare(double value) {
+        double squared = value * value;
+        if (value < 0)
+            squared *= -1;
+        return squared;
+    }
 }

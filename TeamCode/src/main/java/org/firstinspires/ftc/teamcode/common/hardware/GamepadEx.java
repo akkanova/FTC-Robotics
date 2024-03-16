@@ -181,8 +181,8 @@ public class GamepadEx {
      * Adds once button un-click / de-press listener; listens for a change of button state
      * from one that was pressed to a one that is not pressed.
      */
-    public void onButtonUnClicked(Button button, Runnable runnanble) {
-        this.onButtonUnClickListeners.put(button, runnanble);
+    public void onButtonUnClick(Button button, Runnable runnable) {
+        this.onButtonUnClickListeners.put(button, runnable);
     }
 
     /** Removes all "once" and "on" button click listeners */

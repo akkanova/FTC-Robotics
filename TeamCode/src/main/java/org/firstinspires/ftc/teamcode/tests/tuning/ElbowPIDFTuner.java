@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.tests.tuning;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+
 import org.firstinspires.ftc.teamcode.common.GlobalConfig;
-import org.firstinspires.ftc.teamcode.common.HardwareManager;
 import org.firstinspires.ftc.teamcode.common.hardware.GamepadEx;
 import org.firstinspires.ftc.teamcode.common.hardware.PIDFController;
-import org.firstinspires.ftc.teamcode.tests.BaseTest;
+import org.firstinspires.ftc.teamcode.tests.TestTools;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *     Based on this video.
  * </a>
  * */
-public class ElbowPIDFTuner extends BaseTest {
+public class ElbowPIDFTuner extends LinearOpMode {
     @Override
     public void runOpMode() {
         // A: I'm not going to modify the HardwareManager version so that
@@ -24,7 +26,9 @@ public class ElbowPIDFTuner extends BaseTest {
         // This will just stay as an exact copy of it with a tightly coupled
         // debug telemetry.
 
-        HardwareManager hardwareManager = getHardwareManager();
+        TestTools testTools = new TestTools(hardwareMap, telemetry);
+        DcMotorEx elbowMotor = testTools.hardwareManager.elbowMotor;
+
         AtomicInteger atomicTargetAngle = new AtomicInteger(45);
         PIDFController controller = new PIDFController(
                 GlobalConfig.ElbowMotorConfig.P,
@@ -32,7 +36,6 @@ public class ElbowPIDFTuner extends BaseTest {
                 GlobalConfig.ElbowMotorConfig.D
         );
 
-        initializeDashboardTelemetry();
         waitForStart();
 
         GamepadEx gamepadEx = new GamepadEx(gamepad1);
@@ -46,7 +49,7 @@ public class ElbowPIDFTuner extends BaseTest {
                 GlobalConfig.ElbowMotorConfig.D
             );
 
-            int currentArmTicks = hardwareManager.elbowMotor.getCurrentPosition();
+            int currentArmTicks = elbowMotor.getCurrentPosition();
             double actualAngle = currentArmTicks * GlobalConfig.ElbowMotorConfig.ANGLE_PER_TICK +
                     GlobalConfig.ElbowMotorConfig.initialAngle;
             double targetAngle = atomicTargetAngle.get();
@@ -59,20 +62,20 @@ public class ElbowPIDFTuner extends BaseTest {
 
             double power = pid + ff;
 
-            hardwareManager.elbowMotor.setPower(power);
+            elbowMotor.setPower(power);
 
-            telemetry.addLine("Press dpad up to increase target angle");
-            telemetry.addLine("Press dpad down to decrease target angle");
+            testTools.telemetry.addLine("Press dpad up to increase target angle");
+            testTools.telemetry.addLine("Press dpad down to decrease target angle");
 
-            telemetry.addData("Current Angle", actualAngle);
-            telemetry.addData("Target Angle", targetAngle);
-            telemetry.addData("Error Angle", targetAngle - actualAngle);
+            testTools.telemetry.addData("Current Angle", actualAngle);
+            testTools.telemetry.addData("Target Angle", targetAngle);
+            testTools.telemetry.addData("Error Angle", targetAngle - actualAngle);
 
-            telemetry.addData("Current Position", currentArmTicks);
-            telemetry.addData("Target Position", targetTicks);
-            telemetry.addData("Needed Power", power);
+            testTools.telemetry.addData("Current Position", currentArmTicks);
+            testTools.telemetry.addData("Target Position", targetTicks);
+            testTools.telemetry.addData("Needed Power", power);
 
-            telemetry.update();
+            testTools.telemetry.update();
             gamepadEx.sync();
         }
     }

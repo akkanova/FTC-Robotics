@@ -144,6 +144,9 @@ public final class GlobalConfig {
 
         public static double initialAngle = 44.425;
 
+        // The angle at which the motor should start acting on.
+        public static final double THRESHOLD_ANGLE = initialAngle + 2;
+
         // Assumes elbow is a 60:1 Tetrix motor with a 2:1 gear ratio.
         public static final double TICK_PER_ANGLE = 1440.0 * 2 / 360.0;
         public static final double ANGLE_PER_TICK = 1 / TICK_PER_ANGLE;
@@ -152,9 +155,6 @@ public final class GlobalConfig {
 
     // A: We register so much tele-ops that it's kinda confusing. So we have
     // this to be able to disable specific ones, and have some clarity.
-
-    /** Determines whether Human-Operated TeleOps should not be registered */
-    public static final boolean DISABLE_OPERATED_OP_MODES = false;
 
     /** Determines whether Road Runner tuning TeleOPs should not be registered */
     public static final boolean DISABLE_ROAD_RUNNER_TUNING = false;

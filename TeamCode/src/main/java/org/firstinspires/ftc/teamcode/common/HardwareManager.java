@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.ftc.LazyImu;
 import com.acmerobotics.roadrunner.ftc.LynxFirmware;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -59,16 +60,19 @@ public class HardwareManager {
 
     public final ServoImplEx leftClawServo;  // Studica Multi-Mode Smart Servo
     public final ServoImplEx rightClawServo; // Studica Multi-Mode Smart Servo
-//    public final ServoImplEx armExtensionServo; // Vex 2-Wire Motor
-    public final DcMotorEx elbowMotor;    // TETRIX TorqueNADO 40:1
+    public final CRServoImplEx armExtensionServo; // Vex 2-Wire Motor
+    public final DcMotorEx elbowMotor; // TETRIX TorqueNADO 40:1
+
     private PIDFController elbowPIDFController;
 
-    /**
-     * Usesa a dedicated lazy loaded controller, to determine the required
-     * amount of power to hold it accurately to that specific degree.
-     * @param targetAngle the target angle of the arm from it's stationary base.
-     *  */
-    public void holdElbowAt(double targetAngle) {
+    /** @return the power necessary to hold the arm at the provided position */
+    public double getPowerToHoldElbowAt(double targetAngle) {
+        if (targetAngle < GlobalConfig.ElbowMotorConfig.THRESHOLD_ANGLE) {
+            elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            return 0;
+        }
+
+        elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         if (elbowPIDFController == null)
             elbowPIDFController = new PIDFController(
                     GlobalConfig.ElbowMotorConfig.P,
@@ -84,7 +88,16 @@ public class HardwareManager {
         double ff  = Math.cos(Math.toRadians(targetAngle)) * GlobalConfig.ElbowMotorConfig.F;
         double pid = elbowPIDFController.calculate(currentMotorTicks, targetTicks);
 
-        elbowMotor.setPower(pid + ff);
+        return pid + ff;
+    }
+
+    /**
+     * Uses a dedicated lazy loaded controller, to determine the required
+     * amount of power to hold it accurately to that specific degree.
+     * @param targetAngle the target angle of the arm from it's stationary base.
+     *  */
+    public void holdElbowAt(double targetAngle) {
+        elbowMotor.setPower(getPowerToHoldElbowAt(targetAngle));
     }
 
     //-----------------------------------------------------------------------------------
@@ -97,7 +110,7 @@ public class HardwareManager {
     // Lift
     //-----------------------------------------------------------------------------------
 
-//    public final DcMotorEx liftMotor; // TETRIX TorqueNADO 40:1
+    public final DcMotorEx liftMotor; // TETRIX TorqueNADO 40:1
 
     public HardwareManager(@NotNull HardwareMap hardwareMap) {
         // Lynx Modules (a.k.a Control Hub or Expansion Hub) ----------------------------
@@ -159,6 +172,9 @@ public class HardwareManager {
         leftClawServo.setDirection(Servo.Direction.REVERSE);
         rightClawServo.setDirection(Servo.Direction.FORWARD);
 
+        armExtensionServo = hardwareMap.get(CRServoImplEx.class, GlobalConfig.HardwareBindingNames.clawExtenderServo);
+        armExtensionServo.setDirection(DcMotor.Direction.FORWARD);
+
         elbowMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.elbowMotor);
         elbowMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -172,8 +188,8 @@ public class HardwareManager {
         droneLauncherHook.setDirection(Servo.Direction.REVERSE);
 
         // Lift -------------------------------------------------------------------------
-//        liftMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.liftMotor);
-//        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-//        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        liftMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.liftMotor);
+        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 }

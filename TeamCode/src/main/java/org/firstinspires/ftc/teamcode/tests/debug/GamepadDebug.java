@@ -1,19 +1,20 @@
 package org.firstinspires.ftc.teamcode.tests.debug;
 
-import org.firstinspires.ftc.teamcode.tests.BaseTest;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.tests.TestTools;
 
 /** Used to debug both user gamepads */
-public class GamepadDebug extends BaseTest {
+public class GamepadDebug extends LinearOpMode {
     @Override
     public void runOpMode() {
-        initializeDashboardTelemetry();
+        TestTools testTools = new TestTools(hardwareMap, telemetry);
         waitForStart();
 
         while (opModeIsActive()) {
-            telemetry.addData("gamepad1", gamepad1);
-            telemetry.addData("gamepad2", gamepad2);
-            telemetry.update();
+            testTools.telemetry.addData("gamepad1", gamepad1);
+            testTools.telemetry.addData("gamepad2", gamepad2);
+            testTools.telemetry.update();
         }
     }
 }

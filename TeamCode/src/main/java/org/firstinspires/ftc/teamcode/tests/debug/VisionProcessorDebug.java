@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode.tests.debug;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 import org.firstinspires.ftc.teamcode.common.ComputerVision;
-import org.firstinspires.ftc.teamcode.tests.BaseTest;
 
 /**
  * Tests the specified processor using the
@@ -9,12 +10,10 @@ import org.firstinspires.ftc.teamcode.tests.BaseTest;
 *       FTC Dashboard Webcam preview
  * </a>
  * */
-public class VisionProcessorDebug extends BaseTest {
+public class VisionProcessorDebug extends LinearOpMode {
     @Override
     public void runOpMode() {
-        initializeDashboardTelemetry();
         ComputerVision<?> processor = ComputerVision.createDefaultAprilTagCV(hardwareMap, true);
-
         telemetry.addLine("View preview using Driver Hub or FTC-Dashboard.");
         telemetry.update();
 

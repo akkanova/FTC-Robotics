@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.tests.road_runner;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.common.hardware.MecanumDrive;
-import org.firstinspires.ftc.teamcode.common.misc.DashboardUtils;
-import org.firstinspires.ftc.teamcode.tests.BaseTest;
+import org.firstinspires.ftc.teamcode.tests.TestTools;
 
 /**
  * <a href="https://github.com/acmerobotics/road-runner-quickstart/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/tuning/LocalizationTest.java">
@@ -16,18 +13,20 @@ import org.firstinspires.ftc.teamcode.tests.BaseTest;
  * </a>. Modified for mecanum drive base testing only. Assumes that the robot is
  * initially placed at the exact center of the stage.
  */
-public class LocalizationTest extends BaseTest {
+public class LocalizationTest extends LinearOpMode {
     public static double INITIAL_X = 0;
     public static double INITIAL_Y = 0;
     public static double INITIAL_HEADING = 0;
 
     @Override
     public void runOpMode() {
-        Tools tools = setup();
+        TestTools testTools = new TestTools(hardwareMap, telemetry,
+            new Pose2d(INITIAL_X, INITIAL_Y, INITIAL_HEADING));
+
         waitForStart();
 
         while(opModeIsActive()) {
-            tools.drive.setDrivePowers(
+            testTools.drive.setDrivePowers(
                 new PoseVelocity2d(
                     new Vector2d(
                         -gamepad1.left_stick_y,
@@ -37,15 +36,16 @@ public class LocalizationTest extends BaseTest {
                 )
             );
 
-            tools.drive.updatePoseEstimate();
+            testTools.drive.updatePoseEstimate();
+            testTools.sendPositionTelemetry();
 
-            telemetry.addData("x", tools.drive.currentPose.position.x);
-            telemetry.addData("y", tools.drive.currentPose.position.y);
-            telemetry.addData("heading (deg)",
-                Math.toDegrees(tools.drive.currentPose.heading.toDouble()));
+            testTools.telemetry.addData("x", testTools.drive.currentPose.position.x);
+            testTools.telemetry.addData("y", testTools.drive.currentPose.position.y);
+            testTools.telemetry.addData("heading (deg)",
+                Math.toDegrees(testTools.drive.currentPose.heading.toDouble())
+            );
 
-            telemetry.update();
-            sendLocationTelemetryPacket(tools.drive);
+            testTools.telemetry.update();
         }
     }
 }

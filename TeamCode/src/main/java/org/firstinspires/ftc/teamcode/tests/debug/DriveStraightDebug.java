@@ -1,25 +1,21 @@
 package org.firstinspires.ftc.teamcode.tests.debug;
 
-import org.firstinspires.ftc.teamcode.common.HardwareManager;
-import org.firstinspires.ftc.teamcode.common.hardware.MecanumDrive;
-import org.firstinspires.ftc.teamcode.tests.BaseTest;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.tests.TestTools;
 
 /**
  * Set all wheel motors to the same power, and see
  * physically if it curves or drives straight.
  * */
-public class DriveStraightDebug extends BaseTest {
-
+public class DriveStraightDebug extends LinearOpMode {
     @Override
     public void runOpMode() {
-        HardwareManager manager = getHardwareManager();
-        MecanumDrive drive = getMecanumDrive();
-
-        initializeDashboardTelemetry();
+        TestTools testTools = new TestTools(hardwareMap, telemetry);
         waitForStart();
 
         while (opModeIsActive()) {
-            manager.doForAllWheels((wheel) -> {
+            testTools.hardwareManager.doForAllWheels((wheel) -> {
                if (gamepad1.dpad_up) {
                    wheel.setPower(0.75);
                } else if (gamepad1.dpad_down) {
@@ -29,10 +25,11 @@ public class DriveStraightDebug extends BaseTest {
                }
             });
 
-            telemetry.addData("heading (deg)", Math.toDegrees(drive.currentPose.heading.toDouble()));
-            telemetry.update();
+            testTools.telemetry.addData("heading (deg)",
+                Math.toDegrees(testTools.drive.currentPose.heading.toDouble()));
 
-            sendLocationTelemetryPacket();
+            testTools.sendPositionTelemetry();
+            testTools.telemetry.update();
         }
     }
 }
