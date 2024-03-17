@@ -13,34 +13,33 @@ public final class GlobalConfig {
     public static final class HardwareBindingNames {
         public static final String imu = "imu";
 
-        public static final String frontLeftWheelMotor  = "FrontLeftM";
-        public static final String frontRightWheelMotor = "FrontRightM";
-        public static final String backLeftWheelMotor   = "BackLeftM";
-        public static final String backRightWheelMotor  = "BackRightM";
+        public static final String frontLeftWheelMotor  = "FrontLeftM";  // TETRIX TorqueNADO 40:1
+        public static final String frontRightWheelMotor = "FrontRightM"; // TETRIX TorqueNADO 40:1
+        public static final String backLeftWheelMotor   = "BackLeftM";   // TETRIX TorqueNADO 40:1
+        public static final String backRightWheelMotor  = "BackRightM";  // TETRIX TorqueNADO 40:1
 
-        public static final String deadWheelLeftEncoder = frontLeftWheelMotor;
-        public static final String deadWheelRightEncoder = frontRightWheelMotor;
-        public static final String deadWheelPerpendicularEncoder = backLeftWheelMotor;
+        public static final String deadWheelLeftEncoder = frontLeftWheelMotor;         // Cypher MAX Through Bore Encoder
+        public static final String deadWheelRightEncoder = frontRightWheelMotor;       // Cypher MAX Through Bore Encoder
+        public static final String deadWheelPerpendicularEncoder = backLeftWheelMotor; // Cypher MAX Through Bore Encoder
 
-        public static final String leftClawServo = "ClawLeftS";
-        public static final String rightClawServo = "ClawRightS";
-        public static final String clawExtenderServo = "ArmExtenderS";
-        public static final String clawWristServo = "ClawWristS";
-        public static final String elbowMotor = "ElbowM";
+        public static final String leftClawServo = "ClawLeftS";   // Studica Multi-Mode Smart Servo
+        public static final String rightClawServo = "ClawRightS"; // Studica Multi-Mode Smart Servo
+        public static final String clawExtenderServo = "ArmExtenderS"; // Vex 2-Wire Motor
+        public static final String elbowMotor = "ElbowM"; // TETRIX TorqueNADO 60:1
 
-        public static final String droneLauncherHookServo = "DroneLauncherHookS";
+        public static final String droneLauncherHookServo = "DroneLauncherHookS"; // Studica Multi-Mode Smart Servo
 
-        public static final String liftMotor = "LiftM";
+        public static final String liftMotor = "LiftM";  // TETRIX TorqueNADO 40:1
     }
 
-    /*
+    /**
      * Constants shared between multiple drive types.
-     *
+
      * TODO: Tune or adjust the following constants to fit your robot. Note that the non-final
      * fields may also be edited through the dashboard (connect to the robot's WiFi network and
      * navigate to https://192.168.49.1:8080/dash). Make sure to save the values here after you
      * adjust them in the dashboard; **config variable changes don't persist between app restarts**.
-     *
+
      * These are not the only parameters; some are located in the localizer classes, drive base classes,
      * and op modes themselves.
      */
@@ -49,8 +48,8 @@ public final class GlobalConfig {
         /*
          * These are motor constants that should be listed online for your motors.
          */
-        public static final double TICKS_PER_REV = 1;
-        public static final double MAX_RPM = 1;
+        public static final double TICKS_PER_REV = 960;
+        public static final double MAX_RPM = 150;
 
         /*
          * Set RUN_USING_ENCODER to true to enable built-in hub velocity control using drive encoders.
@@ -72,9 +71,9 @@ public final class GlobalConfig {
          * angular distances although most angular parameters are wrapped in Math.toRadians() for
          * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
          */
-        public static double WHEEL_RADIUS = 2; // in
+        public static double WHEEL_RADIUS = 1.9685; // in
         public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-        public static double TRACK_WIDTH = 1; // in
+        public static double TRACK_WIDTH = 14.875; // in
 
         /*
          * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -93,10 +92,10 @@ public final class GlobalConfig {
          * small and gradually increase them later after everything is working. All distance units are
          * inches.
          */
-        public static double MAX_VEL = 30;
-        public static double MAX_ACCEL = 30;
-        public static double MAX_ANG_VEL = Math.toRadians(60);
-        public static double MAX_ANG_ACCEL = Math.toRadians(60);
+        public static double MAX_VEL = 26.282956839013906;
+        public static double MAX_ACCEL = 26.282956839013906;
+        public static double MAX_ANG_VEL = Math.toRadians(101.23714285714284);
+        public static double MAX_ANG_ACCEL = Math.toRadians(101.23714285714284);
 
         /*
          * Adjust the orientations here to match your robot. See the FTC SDK documentation for details.
@@ -104,7 +103,7 @@ public final class GlobalConfig {
         public static RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIR =
                 RevHubOrientationOnRobot.LogoFacingDirection.UP;
         public static RevHubOrientationOnRobot.UsbFacingDirection USB_FACING_DIR =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+                RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
 
 
         public static double encoderTicksToInches(double ticks) {
@@ -119,5 +118,23 @@ public final class GlobalConfig {
             // see https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.61g9ixenznbx
             return 32767 / ticksPerSecond;
         }
+    }
+
+    /** Configuration specifically for the elbow motor */
+    @Config
+    public static final class ElbowMotorConfig {
+        public static double P = 0.031;
+        public static double I = 0.5;
+        public static double D = 1e-5;
+        public static double F = 0;
+
+        public static double initialAngle = 44.425;
+
+        // The angle at which the motor should start acting on.
+        public static final double THRESHOLD_ANGLE = initialAngle + 2;
+
+        // Assumes elbow is a 60:1 Tetrix motor with a 2:1 gear ratio.
+        public static final double TICK_PER_ANGLE = 1440.0 * 2 / 360.0;
+        public static final double ANGLE_PER_TICK = 1 / TICK_PER_ANGLE;
     }
 }
