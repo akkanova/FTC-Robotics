@@ -61,18 +61,17 @@ public class HardwareManager {
     public final ServoImplEx leftClawServo;  // Studica Multi-Mode Smart Servo
     public final ServoImplEx rightClawServo; // Studica Multi-Mode Smart Servo
     public final CRServoImplEx armExtensionServo; // Vex 2-Wire Motor
+    public final CRServoImplEx armWristServo;  // Vex 2-Wire Motor
     public final DcMotorEx elbowMotor; // TETRIX TorqueNADO 40:1
 
     private PIDFController elbowPIDFController;
 
-    /** @return the power necessary to hold the arm at the provided position */
-    public double getPowerToHoldElbowAt(double targetAngle) {
-        if (targetAngle < GlobalConfig.ElbowMotorConfig.THRESHOLD_ANGLE) {
-            elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            return 0;
-        }
-
-        elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    /**
+     * Uses a dedicated lazy loaded controller, to determine the required
+     * amount of power to hold it accurately to that specific degree.
+     * @param targetAngle the target angle of the arm from it's stationary base.
+     *  */
+    public double getRequiredElbowPower(double targetAngle) {
         if (elbowPIDFController == null)
             elbowPIDFController = new PIDFController(
                     GlobalConfig.ElbowMotorConfig.P,
@@ -87,17 +86,22 @@ public class HardwareManager {
         // To Compensate for Gravity
         double ff  = Math.cos(Math.toRadians(targetAngle)) * GlobalConfig.ElbowMotorConfig.F;
         double pid = elbowPIDFController.calculate(currentMotorTicks, targetTicks);
-
         return pid + ff;
     }
 
-    /**
-     * Uses a dedicated lazy loaded controller, to determine the required
-     * amount of power to hold it accurately to that specific degree.
-     * @param targetAngle the target angle of the arm from it's stationary base.
-     *  */
     public void holdElbowAt(double targetAngle) {
-        elbowMotor.setPower(getPowerToHoldElbowAt(targetAngle));
+        if (targetAngle < GlobalConfig.ElbowMotorConfig.THRESHOLD_ANGLE) {
+            elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            elbowMotor.setPower(0);
+        }
+
+        elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        elbowMotor.setPower(getRequiredElbowPower(targetAngle));
+    }
+
+    public double getCurrentArmAngle() {
+        return elbowMotor.getCurrentPosition() * GlobalConfig.ElbowMotorConfig.ANGLE_PER_TICK +
+                GlobalConfig.ElbowMotorConfig.initialAngle;
     }
 
     //-----------------------------------------------------------------------------------
@@ -164,7 +168,7 @@ public class HardwareManager {
         deadWheelRightEncoder = new LazyOverflowEncoder(hardwareMap,
             GlobalConfig.HardwareBindingNames.deadWheelRightEncoder);
         deadWheelPerpendicularEncoder = new LazyOverflowEncoder(hardwareMap,
-            GlobalConfig.HardwareBindingNames.deadWheelPerpendicularEncoder, true);
+            GlobalConfig.HardwareBindingNames.deadWheelPerpendicularEncoder);
 
         // Arm --------------------------------------------------------------------------
         leftClawServo = hardwareMap.get(ServoImplEx.class, GlobalConfig.HardwareBindingNames.leftClawServo);
@@ -174,6 +178,9 @@ public class HardwareManager {
 
         armExtensionServo = hardwareMap.get(CRServoImplEx.class, GlobalConfig.HardwareBindingNames.clawExtenderServo);
         armExtensionServo.setDirection(DcMotor.Direction.FORWARD);
+
+        armWristServo = hardwareMap.get(CRServoImplEx.class, GlobalConfig.HardwareBindingNames.clawWristServo);
+        armWristServo.setDirection(DcMotor.Direction.FORWARD);
 
         elbowMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.elbowMotor);
         elbowMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -185,11 +192,12 @@ public class HardwareManager {
         // Drone Launcher ---------------------------------------------------------------
         droneLauncherHook = hardwareMap.get(ServoImplEx.class,
             GlobalConfig.HardwareBindingNames.droneLauncherHookServo);
-        droneLauncherHook.setDirection(Servo.Direction.REVERSE);
+        droneLauncherHook.setDirection(Servo.Direction.FORWARD);
+        droneLauncherHook.setPosition(1);
 
         // Lift -------------------------------------------------------------------------
         liftMotor = hardwareMap.get(DcMotorEx.class, GlobalConfig.HardwareBindingNames.liftMotor);
-        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 }

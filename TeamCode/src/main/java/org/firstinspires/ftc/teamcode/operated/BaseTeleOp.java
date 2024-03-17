@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.common.misc.Lazy;
 import org.firstinspires.ftc.teamcode.common.misc.Misc;
 
 /** Base class implemented by all Tele-Op */
-public abstract class BaseOperated extends OpMode {
+public abstract class BaseTeleOp extends OpMode {
     protected HardwareManager hardwareManager;
     protected MecanumDrive drive;
 
@@ -86,9 +86,10 @@ public abstract class BaseOperated extends OpMode {
         );
     }
 
+    /** @return the target position of the arm */
+    protected abstract double getElbowPower();
+
     /** called by loop() after it runs. */
     protected abstract void  runPeriodic();
 
-    /** @return the target position of the arm */
-    protected abstract double getElbowPower();
 }
