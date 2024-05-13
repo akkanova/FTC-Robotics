@@ -19,10 +19,10 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAcceleration
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.acmerobotics.roadrunner.util.Angle;
 
-import org.firstinspires.ftc.teamcode.common.road_runner.trajectory_sequence.sequence_segment.SequenceSegment;
-import org.firstinspires.ftc.teamcode.common.road_runner.trajectory_sequence.sequence_segment.TrajectorySegment;
 import org.firstinspires.ftc.teamcode.common.road_runner.trajectory_sequence.sequence_segment.TurnSegment;
 import org.firstinspires.ftc.teamcode.common.road_runner.trajectory_sequence.sequence_segment.WaitSegment;
+import org.firstinspires.ftc.teamcode.common.road_runner.trajectory_sequence.sequence_segment.SequenceSegment;
+import org.firstinspires.ftc.teamcode.common.road_runner.trajectory_sequence.sequence_segment.TrajectorySegment;
 
 import java.util.ArrayList;
 import java.util.Collections;

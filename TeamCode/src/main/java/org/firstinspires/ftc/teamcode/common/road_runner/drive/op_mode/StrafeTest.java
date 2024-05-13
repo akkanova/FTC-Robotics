@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.common.road_runner.drive.MecanumDriveImpl;
+import org.firstinspires.ftc.teamcode.common.road_runner.drive.SampleMecanumDrive;
 
 /*
  * This is a simple routine to test translational drive capabilities.
@@ -22,7 +22,8 @@ public class StrafeTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-        MecanumDriveImpl drive = new MecanumDriveImpl(hardwareMap);
+
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
                 .strafeRight(DISTANCE)

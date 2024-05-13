@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.common.road_runner.drive.op_mode;
 
+import static org.firstinspires.ftc.teamcode.common.DriveConstants.MAX_RPM;
+import static org.firstinspires.ftc.teamcode.common.DriveConstants.RUN_USING_ENCODER;
+import static org.firstinspires.ftc.teamcode.common.DriveConstants.rpmToVelocity;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -11,8 +15,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.system.Misc;
-import org.firstinspires.ftc.teamcode.common.GlobalConfig;
-import org.firstinspires.ftc.teamcode.common.road_runner.drive.MecanumDriveImpl;
+import org.firstinspires.ftc.teamcode.common.road_runner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.common.road_runner.util.LoggingUtil;
 import org.firstinspires.ftc.teamcode.common.road_runner.util.RegressionUtil;
 
@@ -37,13 +40,15 @@ public class AutomaticFeedforwardTuner extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        if (GlobalConfig.DriveConstants.RUN_USING_ENCODER) {
+        if (RUN_USING_ENCODER) {
             RobotLog.setGlobalErrorMsg("Feedforward constants usually don't need to be tuned " +
                     "when using the built-in drive motor velocity PID.");
         }
 
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-        MecanumDriveImpl drive = new MecanumDriveImpl(hardwareMap);
+
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+
         NanoClock clock = NanoClock.system();
 
         telemetry.addLine("Press play to begin the feedforward tuning routine");
@@ -92,7 +97,7 @@ public class AutomaticFeedforwardTuner extends LinearOpMode {
         telemetry.addLine("Running...");
         telemetry.update();
 
-        double maxVel = GlobalConfig.DriveConstants.rpmToVelocity(GlobalConfig.DriveConstants.MAX_RPM);
+        double maxVel = rpmToVelocity(MAX_RPM);
         double finalVel = MAX_POWER * maxVel;
         double accel = (finalVel * finalVel) / (2.0 * DISTANCE);
         double rampTime = Math.sqrt(2.0 * DISTANCE / accel);

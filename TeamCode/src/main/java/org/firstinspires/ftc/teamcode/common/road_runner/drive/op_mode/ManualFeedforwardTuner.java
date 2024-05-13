@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.common.road_runner.drive.op_mode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.drive.DriveSignal;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.kinematics.Kinematics;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
@@ -16,8 +15,8 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.common.GlobalConfig;
-import org.firstinspires.ftc.teamcode.common.road_runner.drive.MecanumDriveImpl;
+import org.firstinspires.ftc.teamcode.common.DriveConstants;
+import org.firstinspires.ftc.teamcode.common.road_runner.drive.SampleMecanumDrive;
 
 import java.util.Objects;
 
@@ -42,7 +41,8 @@ public class ManualFeedforwardTuner extends LinearOpMode {
     public static double DISTANCE = 72; // in
 
     private FtcDashboard dashboard = FtcDashboard.getInstance();
-    private MecanumDriveImpl drive;
+
+    private SampleMecanumDrive drive;
 
     enum Mode {
         DRIVER_MODE,
@@ -54,22 +54,22 @@ public class ManualFeedforwardTuner extends LinearOpMode {
     private static MotionProfile generateProfile(boolean movingForward) {
         MotionState start = new MotionState(movingForward ? 0 : DISTANCE, 0, 0, 0);
         MotionState goal = new MotionState(movingForward ? DISTANCE : 0, 0, 0, 0);
-        return MotionProfileGenerator.generateSimpleMotionProfile(start, goal,
-            GlobalConfig.DriveConstants.MAX_VEL,
-            GlobalConfig.DriveConstants.MAX_ACCEL);
+        return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, DriveConstants.MAX_VEL, DriveConstants.MAX_ACCEL);
     }
 
     @Override
     public void runOpMode() {
-        if (GlobalConfig.DriveConstants.RUN_USING_ENCODER) {
+        if (DriveConstants.RUN_USING_ENCODER) {
             RobotLog.setGlobalErrorMsg("Feedforward constants usually don't need to be tuned " +
                     "when using the built-in drive motor velocity PID.");
         }
 
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
-        drive = new MecanumDriveImpl(hardwareMap);
+
+        drive = new SampleMecanumDrive(hardwareMap);
 
         final VoltageSensor voltageSensor = hardwareMap.voltageSensor.iterator().next();
+
         mode = Mode.TUNING_MODE;
 
         NanoClock clock = NanoClock.system();
@@ -107,10 +107,7 @@ public class ManualFeedforwardTuner extends LinearOpMode {
                     }
 
                     MotionState motionState = activeProfile.get(profileTime);
-                    double targetPower = Kinematics.calculateMotorFeedforward(motionState.getV(), motionState.getA(),
-                        GlobalConfig.DriveConstants.kV,
-                        GlobalConfig.DriveConstants.kA,
-                        GlobalConfig.DriveConstants.kStatic);
+                    double targetPower = Kinematics.calculateMotorFeedforward(motionState.getV(), motionState.getA(), DriveConstants.kV, DriveConstants.kA, DriveConstants.kStatic);
 
                     final double NOMINAL_VOLTAGE = 12.0;
                     final double voltage = voltageSensor.getVoltage();
@@ -134,11 +131,11 @@ public class ManualFeedforwardTuner extends LinearOpMode {
                     }
 
                     drive.setWeightedDrivePower(
-                        new Pose2d(
-                            -gamepad1.left_stick_y,
-                            -gamepad1.left_stick_x,
-                            -gamepad1.right_stick_x
-                        )
+                            new Pose2d(
+                                    -gamepad1.left_stick_y,
+                                    -gamepad1.left_stick_x,
+                                    -gamepad1.right_stick_x
+                            )
                     );
                     break;
             }

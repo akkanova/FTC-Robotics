@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.common.GlobalConfig;
-import org.firstinspires.ftc.teamcode.common.road_runner.drive.MecanumDriveImpl;
+import org.firstinspires.ftc.teamcode.common.DriveConstants;
+import org.firstinspires.ftc.teamcode.common.road_runner.drive.SampleMecanumDrive;
 
 import java.util.Objects;
 
@@ -36,12 +36,14 @@ public class MaxVelocityTuner extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        MecanumDriveImpl drive = new MecanumDriveImpl(hardwareMap);
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+
         telemetry.addLine("Your bot will go at full speed for " + RUNTIME + " seconds.");
         telemetry.addLine("Please ensure you have enough space cleared.");
         telemetry.addLine("");
@@ -66,8 +68,7 @@ public class MaxVelocityTuner extends LinearOpMode {
 
         drive.setDrivePower(new Pose2d());
 
-        double effectiveKf = GlobalConfig.DriveConstants
-            .getMotorVelocityF(veloInchesToTicks(maxVelocity));
+        double effectiveKf = DriveConstants.getMotorVelocityF(veloInchesToTicks(maxVelocity));
 
         telemetry.addData("Max Velocity", maxVelocity);
         telemetry.addData("Max Recommended Velocity", maxVelocity * 0.8);
@@ -78,7 +79,6 @@ public class MaxVelocityTuner extends LinearOpMode {
     }
 
     private double veloInchesToTicks(double inchesPerSec) {
-        return inchesPerSec / (2 * Math.PI * GlobalConfig.DriveConstants.WHEEL_RADIUS) /
-            GlobalConfig.DriveConstants.GEAR_RATIO * GlobalConfig.DriveConstants.TICKS_PER_REV;
+        return inchesPerSec / (2 * Math.PI * DriveConstants.WHEEL_RADIUS) / DriveConstants.GEAR_RATIO * DriveConstants.TICKS_PER_REV;
     }
 }

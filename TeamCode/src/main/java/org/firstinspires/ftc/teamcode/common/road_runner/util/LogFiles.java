@@ -16,8 +16,9 @@ import com.qualcomm.robotcore.util.WebHandlerManager;
 
 import org.firstinspires.ftc.ftccommon.external.WebHandlerRegistrar;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.common.GlobalConfig;
-import org.firstinspires.ftc.teamcode.common.road_runner.drive.MecanumDriveImpl;
+import org.firstinspires.ftc.teamcode.common.DriveConstants;
+import org.firstinspires.ftc.teamcode.common.road_runner.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.common.road_runner.drive.SampleTankDrive;
 import org.firstinspires.ftc.teamcode.common.road_runner.drive.StandardTrackingWheelLocalizer;
 
 import java.io.File;
@@ -47,41 +48,41 @@ public final class LogFiles {
         public long nsInit = System.nanoTime();
         public long nsStart, nsStop;
 
-        public double ticksPerRev = GlobalConfig.DriveConstants.TICKS_PER_REV;
-        public double maxRpm = GlobalConfig.DriveConstants.MAX_RPM;
-        public boolean runUsingEncoder = GlobalConfig.DriveConstants.RUN_USING_ENCODER;
-        public double motorP = GlobalConfig.DriveConstants.MOTOR_VELO_PID.p;
-        public double motorI = GlobalConfig.DriveConstants.MOTOR_VELO_PID.i;
-        public double motorD = GlobalConfig.DriveConstants.MOTOR_VELO_PID.d;
-        public double motorF = GlobalConfig.DriveConstants.MOTOR_VELO_PID.f;
-        public double wheelRadius = GlobalConfig.DriveConstants.WHEEL_RADIUS;
-        public double gearRatio = GlobalConfig.DriveConstants.GEAR_RATIO;
-        public double trackWidth = GlobalConfig.DriveConstants.TRACK_WIDTH;
-        public double kV = GlobalConfig.DriveConstants.kV;
-        public double kA = GlobalConfig.DriveConstants.kA;
-        public double kStatic = GlobalConfig.DriveConstants.kStatic;
-        public double maxVel = GlobalConfig.DriveConstants.MAX_VEL;
-        public double maxAccel = GlobalConfig.DriveConstants.MAX_ACCEL;
-        public double maxAngVel = GlobalConfig.DriveConstants.MAX_ANG_VEL;
-        public double maxAngAccel = GlobalConfig.DriveConstants.MAX_ANG_ACCEL;
+        public double ticksPerRev = DriveConstants.TICKS_PER_REV;
+        public double maxRpm = DriveConstants.MAX_RPM;
+        public boolean runUsingEncoder = DriveConstants.RUN_USING_ENCODER;
+        public double motorP = DriveConstants.MOTOR_VELO_PID.p;
+        public double motorI = DriveConstants.MOTOR_VELO_PID.i;
+        public double motorD = DriveConstants.MOTOR_VELO_PID.d;
+        public double motorF = DriveConstants.MOTOR_VELO_PID.f;
+        public double wheelRadius = DriveConstants.WHEEL_RADIUS;
+        public double gearRatio = DriveConstants.GEAR_RATIO;
+        public double trackWidth = DriveConstants.TRACK_WIDTH;
+        public double kV = DriveConstants.kV;
+        public double kA = DriveConstants.kA;
+        public double kStatic = DriveConstants.kStatic;
+        public double maxVel = DriveConstants.MAX_VEL;
+        public double maxAccel = DriveConstants.MAX_ACCEL;
+        public double maxAngVel = DriveConstants.MAX_ANG_VEL;
+        public double maxAngAccel = DriveConstants.MAX_ANG_ACCEL;
 
-        public double mecTransP = MecanumDriveImpl.TRANSLATIONAL_PID.kP;
-        public double mecTransI = MecanumDriveImpl.TRANSLATIONAL_PID.kI;
-        public double mecTransD = MecanumDriveImpl.TRANSLATIONAL_PID.kD;
-        public double mecHeadingP = MecanumDriveImpl.HEADING_PID.kP;
-        public double mecHeadingI = MecanumDriveImpl.HEADING_PID.kI;
-        public double mecHeadingD = MecanumDriveImpl.HEADING_PID.kD;
-        public double mecLateralMultiplier = MecanumDriveImpl.LATERAL_MULTIPLIER;
+        public double mecTransP = SampleMecanumDrive.TRANSLATIONAL_PID.kP;
+        public double mecTransI = SampleMecanumDrive.TRANSLATIONAL_PID.kI;
+        public double mecTransD = SampleMecanumDrive.TRANSLATIONAL_PID.kD;
+        public double mecHeadingP = SampleMecanumDrive.HEADING_PID.kP;
+        public double mecHeadingI = SampleMecanumDrive.HEADING_PID.kI;
+        public double mecHeadingD = SampleMecanumDrive.HEADING_PID.kD;
+        public double mecLateralMultiplier = SampleMecanumDrive.LATERAL_MULTIPLIER;
 
-//        public double tankAxialP = SampleTankDrive.AXIAL_PID.kP;
-//        public double tankAxialI = SampleTankDrive.AXIAL_PID.kI;
-//        public double tankAxialD = SampleTankDrive.AXIAL_PID.kD;
-//        public double tankCrossTrackP = SampleTankDrive.CROSS_TRACK_PID.kP;
-//        public double tankCrossTrackI = SampleTankDrive.CROSS_TRACK_PID.kI;
-//        public double tankCrossTrackD = SampleTankDrive.CROSS_TRACK_PID.kD;
-//        public double tankHeadingP = SampleTankDrive.HEADING_PID.kP;
-//        public double tankHeadingI = SampleTankDrive.HEADING_PID.kI;
-//        public double tankHeadingD = SampleTankDrive.HEADING_PID.kD;
+        public double tankAxialP = SampleTankDrive.AXIAL_PID.kP;
+        public double tankAxialI = SampleTankDrive.AXIAL_PID.kI;
+        public double tankAxialD = SampleTankDrive.AXIAL_PID.kD;
+        public double tankCrossTrackP = SampleTankDrive.CROSS_TRACK_PID.kP;
+        public double tankCrossTrackI = SampleTankDrive.CROSS_TRACK_PID.kI;
+        public double tankCrossTrackD = SampleTankDrive.CROSS_TRACK_PID.kD;
+        public double tankHeadingP = SampleTankDrive.HEADING_PID.kP;
+        public double tankHeadingI = SampleTankDrive.HEADING_PID.kI;
+        public double tankHeadingD = SampleTankDrive.HEADING_PID.kD;
 
         public double trackingTicksPerRev = StandardTrackingWheelLocalizer.TICKS_PER_REV;
         public double trackingWheelRadius = StandardTrackingWheelLocalizer.WHEEL_RADIUS;
@@ -89,8 +90,8 @@ public final class LogFiles {
         public double trackingLateralDistance = StandardTrackingWheelLocalizer.LATERAL_DISTANCE;
         public double trackingForwardOffset = StandardTrackingWheelLocalizer.FORWARD_OFFSET;
 
-        public RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIR = GlobalConfig.DriveConstants.LOGO_FACING_DIR;
-        public RevHubOrientationOnRobot.UsbFacingDirection USB_FACING_DIR = GlobalConfig.DriveConstants.USB_FACING_DIR;
+        public RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIR = DriveConstants.LOGO_FACING_DIR;
+        public RevHubOrientationOnRobot.UsbFacingDirection USB_FACING_DIR = DriveConstants.USB_FACING_DIR;
 
         public List<Long> nsTimes = new ArrayList<>();
 
